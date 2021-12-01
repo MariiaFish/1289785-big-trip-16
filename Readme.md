@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Мария Панежина](https://up.htmlacademy.ru/ecmascript/16/user/1289785).
-* Наставник: `Неизвестно`.
+* Наставник: [Виктор Кан](https://htmlacademy.ru/profile/viktorkan).
 
 ---
 
