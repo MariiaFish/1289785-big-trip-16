@@ -1,13 +1,7 @@
-import { convertDateToFormat, getLastArrayElement, isSameMonth, getFirstArrayElement } from '../mock/utils.js';
-import { EVENT_DATE_FORMAT, ONLY_NUMBER_DATE_FORMAT } from '../mock/consts.js';
-
-const calcTripCost = (tripPoints) => {
-  let costValue;
-  tripPoints.forEach(({ price }) => {
-    costValue = +price;
-  });
-  return costValue;
-};
+import { getLastArrayElement, getFirstArrayElement } from '../mock/utils/utils.js';
+import { convertDateToFormat, isSameMonth } from '../mock/utils/date.js';
+import { EVENT_DATE_FORMAT, ONLY_NUMBER_DATE_FORMAT } from '../mock/utils/consts.js';
+import {calcTripCost} from '../mock/utils/total-price.js';
 
 const createShortTripInfoTitle = (tripPoints) => tripPoints.map(({eventDestination}) => eventDestination).join('  &mdash; ');
 

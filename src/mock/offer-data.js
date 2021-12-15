@@ -1,5 +1,5 @@
-import { getRandomArrayElement, getRandomInteger,genArray} from './utils.js';
-import { OFFER_TITLES, MIN_PRICE_VALUE, MAX_PRICE_VALUE } from './consts.js';
+import { getRandomArrayElement, getRandomInteger,genArray} from './utils/utils.js';
+import { OFFER_TITLES, MIN_PRICE_VALUE, MAX_PRICE_VALUE } from './utils/consts.js';
 
 class OfferCard {
   constructor() {
@@ -8,7 +8,7 @@ class OfferCard {
   }
 }
 
-const createOfferCard = () => Object.assign({}, new OfferCard());
+const createOfferCard = () => new OfferCard();
 
 const generateOffersData = (array) => {
   const offers = {};

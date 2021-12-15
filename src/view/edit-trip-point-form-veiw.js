@@ -1,6 +1,7 @@
-import { getLowerCaseEventType, getValueAtrTime, getTodayDate, getThisMomentTime } from '../mock/utils.js';
+import { getLowerCaseEventType } from '../mock/utils/utils.js';
+import {getValueAtrTime, getTodayDate, getThisMomentTime} from '../mock/utils/date.js';
 import {createEventTypesList} from './event-type-list-veiw.js';
-import {EVENT_TYPES, EVENT_DESTINATION_POINTS, EVENT_DATE_FORMAT, THIS_MOMENT_TIME_FORMAT} from '../mock/consts.js';
+import {EVENT_TYPES, EVENT_DESTINATION_POINTS, EVENT_DATE_FORMAT, THIS_MOMENT_TIME_FORMAT} from '../mock/utils/consts.js';
 import {createDestinationPointsListTemplate} from './destination-list.js';
 
 const createEventTypesTemplate = (eventType) => {

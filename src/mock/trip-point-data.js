@@ -1,7 +1,8 @@
-import { getRandomArrayElement, getRandomInteger, generateDate, convertDateToFormat, generateEndEventDate, generateBoolean, getRandomArrayLength, generatePhotoAdress, genArray} from './utils.js';
-import { calcTimeDuration } from './duration.js';
+import { getRandomArrayElement, getRandomInteger, generateBoolean, getRandomArrayLength, generatePhotoAdress, genArray} from './utils/utils.js';
+import {generateDate, generateEndEventDate, convertDateToFormat } from './utils/date.js';
+import { calcTimeDuration } from './utils/duration.js';
 import { getOffersArr, generateOffersData } from './offer-data.js';
-import {MIN_HOUR_VALUE, MIN_TWO_DIGIT_VALUE, MAX_HOUR_VALUE, MIDNIGHT_VALUE, MAX_MINUTE_VALUE, MIN_MINUTE_VALUE, MAX_DAYS_GAP, MIN_DAYS_GAP, EVENT_TYPES, OFFER_TYPES, EVENT_DESTINATION_POINTS, FULL_DATE_FORMAT, DESTINATION_DISCRIPTION, MIN_PRICE_VALUE, MAX_PRICE_VALUE} from'./consts.js';
+import {MIN_HOUR_VALUE, MIN_TWO_DIGIT_VALUE, MAX_HOUR_VALUE, MIDNIGHT_VALUE, MAX_MINUTE_VALUE, MIN_MINUTE_VALUE, MAX_DAYS_GAP, MIN_DAYS_GAP, EVENT_TYPES, OFFER_TYPES, EVENT_DESTINATION_POINTS, FULL_DATE_FORMAT, DESTINATION_DISCRIPTION, MIN_PRICE_VALUE, MAX_PRICE_VALUE} from'./utils/consts.js';
 
 const processTimeValue = (value) => {
   let time = value;

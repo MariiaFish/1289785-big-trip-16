@@ -6,7 +6,7 @@ import { createEditPointForm } from './view/edit-trip-point-form-veiw.js';
 import { createTripList } from './view/trip-list-view.js';
 import {createNewPoint} from './view/new-trip-point-view.js';
 import {generateTripPoint} from './mock/trip-point-data.js';
-import { genArray, sortArrayByDate } from './mock/utils.js';
+import { genArray, sortArrayByDate } from './mock/utils/utils.js';
 import {createTripInfo} from './view/trip-info.js';
 
 

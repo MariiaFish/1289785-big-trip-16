@@ -1,5 +1,6 @@
-import { getLowerCaseEventType, convertDateToFormat, getDatetimeAtr } from '../mock/utils.js';
-import {FULL_DATE_FORMAT, EVENT_DATE_FORMAT} from '../mock/consts.js';
+import { getLowerCaseEventType } from '../mock/utils/utils.js';
+import {convertDateToFormat, getDatetimeAtr} from '../mock/utils/date.js';
+import {FULL_DATE_FORMAT, EVENT_DATE_FORMAT} from '../mock/utils/consts.js';
 import { convertDurationTime } from '../mock/convertor-time-duration.js';
 
 const createOfferElements = (offers) => (
@@ -8,7 +9,7 @@ const createOfferElements = (offers) => (
                     <span class="event__offer-title">${offerTitle}</span>
                     &plus;&euro;&nbsp;
                     <span class="event__offer-price">${offerPrice}</span>
-                  </li>`)}
+                  </li>`).join(' ')}
                 </ul>`
 );
 

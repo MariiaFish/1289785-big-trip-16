@@ -1,4 +1,4 @@
-import {MIN_TWO_DIGIT_VALUE, HOUR_VALUE, DAY_VALUE} from './consts.js';
+import {MIN_TWO_DIGIT_VALUE, HOUR_VALUE, DAY_VALUE} from './utils/consts.js';
 
 const convertMinutes = (time) => {
   let minutes = `${time}M`;

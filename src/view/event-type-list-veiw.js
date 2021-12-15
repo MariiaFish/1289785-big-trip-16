@@ -1,4 +1,4 @@
-import { getLowerCaseEventType } from '../mock/utils.js';
+import { getLowerCaseEventType } from '../mock/utils/utils.js';
 
 const createEventTypesList = (types) => (
   `<div class="event__type-list">
