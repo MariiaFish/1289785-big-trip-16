@@ -2,6 +2,7 @@ import { getLowerCaseEventType } from '../mock/utils/utils.js';
 import {convertDateToFormat, getDatetimeAtr} from '../mock/utils/date.js';
 import {FULL_DATE_FORMAT, EVENT_DATE_FORMAT} from '../mock/utils/consts.js';
 import { convertDurationTime } from '../mock/convertor-time-duration.js';
+import {createElement} from '../render.js';
 
 const createOfferElements = (offers) => (
   `<ul class="event__selected-offers ">
@@ -13,7 +14,7 @@ const createOfferElements = (offers) => (
                 </ul>`
 );
 
-const createNewPoint = (tripPointCard) => {
+const createNewPointTemplate = (tripPointCard) => {
   const { eventDate, eventType, offers, eventTitle, eventTime: {startTime: {startTime}, endTime: {endDate, endTime}, eventDuration}, price, isFavorite} = tripPointCard;
 
   const favoriteClass = isFavorite === true ? 'event__favorite-btn--active' : '';
@@ -52,4 +53,24 @@ const createNewPoint = (tripPointCard) => {
             </li>`;
 };
 
-export {createNewPoint};
+class TripPointView {
+  #element = null;
+  #tripPoint = null;
+
+  constructor (tripPoint) {
+    this.#tripPoint  = tripPoint;
+  }
+
+  get element () {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+    return this.#element;
+  }
+
+  get template () {
+    return createNewPointTemplate(this.#tripPoint);
+  }
+}
+
+export { TripPointView };

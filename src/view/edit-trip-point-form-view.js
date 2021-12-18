@@ -1,11 +1,33 @@
 import { getLowerCaseEventType } from '../mock/utils/utils.js';
 import {getValueAtrTime, getTodayDate, getThisMomentTime} from '../mock/utils/date.js';
-import {createEventTypesList} from './event-type-list-veiw.js';
+import {createEventTypesListTemplate} from './event-type-list-view.js';
 import {EVENT_TYPES, EVENT_DESTINATION_POINTS, EVENT_DATE_FORMAT, THIS_MOMENT_TIME_FORMAT} from '../mock/utils/consts.js';
 import {createDestinationPointsListTemplate} from './destination-list.js';
+import { createElement } from '../render.js';
+
+const BLANK_TASK = {
+  eventDate: getTodayDate(EVENT_DATE_FORMAT),
+  eventType: '',
+  offers: '',
+  eventDestination: '',
+  eventTime: {
+    startTime: {
+      startTime: getThisMomentTime(THIS_MOMENT_TIME_FORMAT),
+    },
+    endTime: {
+      endDate: '',
+      endTime: getThisMomentTime(THIS_MOMENT_TIME_FORMAT),
+    }
+  },
+  price: '',
+  destination: {
+    title: '',
+    photos: '',
+  }
+};
 
 const createEventTypesTemplate = (eventType) => {
-  const typesList = createEventTypesList(EVENT_TYPES);
+  const typesList = createEventTypesListTemplate(EVENT_TYPES);
   return `<div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
@@ -79,27 +101,8 @@ const createPhotosContainerTemplate = (photos) => (
                     </div>`
 );
 
-const createEditPointForm = (tripPointCard) => {
-  const {
-    eventDate = getTodayDate(EVENT_DATE_FORMAT),
-    eventType = '',
-    offers = '',
-    eventDestination = '',
-    eventTime: {
-      startTime: {
-        startTime = getThisMomentTime(THIS_MOMENT_TIME_FORMAT),
-      },
-      endTime: {
-        endDate,
-        endTime = getThisMomentTime(THIS_MOMENT_TIME_FORMAT),
-      }
-    },
-    price = '',
-    destination: {
-      title = '',
-      photos = '',
-    }
-  } = tripPointCard;
+const createEditPointFormTemplate = (tripPointCard) => {
+  const { eventDate, eventType, eventDestination, eventTime: {startTime: {startTime}, endTime: {endDate, endTime}}, offers,destination: {title, photos}, price} = tripPointCard;
 
   const typeTemplate = createEventTypesTemplate(eventType);
   const eventTitleTemplate = createEventTitleEditTemplate(eventType, eventDestination);
@@ -123,7 +126,10 @@ const createEditPointForm = (tripPointCard) => {
                   ${priceTemplate}
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Cancel</button>
+                  <button class="event__reset-btn" type="reset">Delete</button>
+                  <button class="event__rollup-btn" type="button">
+                    <span class="visually-hidden">Open event</span>
+                  </button>
                 </header>
 
                 ${offersTemplate}
@@ -138,4 +144,28 @@ const createEditPointForm = (tripPointCard) => {
             </li>`;
 };
 
-export { createEditPointForm };
+class EditPointFormView {
+  #element = null;
+  #tripPointCard = null;
+
+  constructor(tripPointCard = BLANK_TASK) {
+    this.#tripPointCard = tripPointCard;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+    return this.#element;
+  }
+
+  get template() {
+    return createEditPointFormTemplate(this.#tripPointCard);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export { EditPointFormView };

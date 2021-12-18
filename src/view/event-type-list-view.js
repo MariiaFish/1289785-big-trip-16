@@ -1,6 +1,6 @@
 import { getLowerCaseEventType } from '../mock/utils/utils.js';
 
-const createEventTypesList = (types) => (
+const createEventTypesListTemplate = (types) => (
   `<div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
@@ -12,4 +12,4 @@ const createEventTypesList = (types) => (
                     </div>`
 );
 
-export { createEventTypesList };
+export { createEventTypesListTemplate };
