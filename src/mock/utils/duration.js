@@ -1,4 +1,4 @@
-import { convertDateToFormat } from './utils.js';
+import { convertDateToFormat } from '../utils/date.js';
 import {FULL_DATE_FORMAT} from './consts.js';
 import dayjs from 'dayjs';
 

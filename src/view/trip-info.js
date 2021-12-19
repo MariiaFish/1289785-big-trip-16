@@ -1,13 +1,8 @@
-import { convertDateToFormat, getLastArrayElement, isSameMonth, getFirstArrayElement } from '../mock/utils.js';
-import { EVENT_DATE_FORMAT, ONLY_NUMBER_DATE_FORMAT } from '../mock/consts.js';
-
-const calcTripCost = (tripPoints) => {
-  let costValue;
-  tripPoints.forEach(({ price }) => {
-    costValue = +price;
-  });
-  return costValue;
-};
+import { getLastArrayElement, getFirstArrayElement } from '../mock/utils/utils.js';
+import { convertDateToFormat, isSameMonth } from '../mock/utils/date.js';
+import { EVENT_DATE_FORMAT, ONLY_NUMBER_DATE_FORMAT } from '../mock/utils/consts.js';
+import {calcTripCost} from '../mock/utils/total-price.js';
+import { createElement } from '../render.js';
 
 const createShortTripInfoTitle = (tripPoints) => tripPoints.map(({eventDestination}) => eventDestination).join('  &mdash; ');
 
@@ -49,6 +44,30 @@ const createTripInfoTemplate = (tripPoints) => {
           </section>`;
 };
 
-const createTripInfo = (tripPoints) => tripPoints.length === 0 || !tripPoints ? '' : createTripInfoTemplate(tripPoints);
+// const createTripInfo = (tripPoints) => tripPoints.length === 0 || !tripPoints ? '' : createTripInfoTemplate(tripPoints);
 
-export { createTripInfo };
+class TripInfoView {
+  #element = null;
+  #tripPoints = null;
+
+  constructor (tripPoints) {
+    this.#tripPoints = tripPoints;
+  }
+
+  get element () {
+    if(!this.#element) {
+      this.#element = createElement(this.template);
+    }
+    return this.#element;
+  }
+
+  get template () {
+    return this.#tripPoints === 0 || !this.#tripPoints ? '' : createTripInfoTemplate(this.#tripPoints);
+  }
+
+  removeElement () {
+    this.#element = null;
+  }
+}
+
+export { TripInfoView };
