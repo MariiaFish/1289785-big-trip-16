@@ -8,13 +8,16 @@ import { TripPointView } from './view/trip-point-view.js';
 import {generateTripPoint} from './mock/trip-point-data.js';
 import { genArray, sortArrayByDate } from './mock/utils/utils.js';
 import { TripInfoView } from './view/trip-info.js';
+import { EmptyListView } from './view/empty-list-view.js';
 
 
-const TRIP_POINT_COUNT = 5;
+const TRIP_POINT_COUNT = 0;
 
 const tripPoints = sortArrayByDate(genArray(TRIP_POINT_COUNT, generateTripPoint));
-// console.log(tripPointsArray);
-// console.log(sortArrayByDate(tripPointsArray));
+const bodyElement = document.querySelector('.page-body');
+const tripEvent = bodyElement.querySelector('.trip-events');
+const tripMainElement = bodyElement.querySelector('.trip-main');
+const tripControls = tripMainElement.querySelector('.trip-main__trip-controls');
 
 const renderTripPoint = (tripListElement, tripPointCard) => {
   const tripPointComponent = new TripPointView(tripPointCard);
@@ -54,27 +57,26 @@ const renderTripPoint = (tripListElement, tripPointCard) => {
   render(tripListElement, tripPointComponent.element, RenderPosition.BEFOREEND);
 };
 
-const bodyElement = document.querySelector('.page-body');
-
-const tripMainElement = bodyElement.querySelector('.trip-main');
-render(tripMainElement, new TripInfoView(tripPoints).element, RenderPosition.AFTERBEGIN);
-
-const tripControls = tripMainElement.querySelector('.trip-main__trip-controls');
 render(tripControls, new SiteNavigationView().element, RenderPosition.AFTERBEGIN);
 render(tripControls, new FilterMenuView().element, RenderPosition.BEFOREEND);
-
-const tripEvent = bodyElement.querySelector('.trip-events');
-
 render(tripEvent, new SortMenuView().element, RenderPosition.BEFOREEND);
 
-const tripListComponent = new TripListView();
-render(tripEvent, tripListComponent.element, RenderPosition.BEFOREEND);
+const renderTripList = (points) => {
+  if (points.length === 0 || !points) {
+    render(tripEvent, new EmptyListView().element, RenderPosition.BEFOREEND);
+  } else {
+    const tripListComponent = new TripListView();
+    render(tripEvent, tripListComponent.element, RenderPosition.BEFOREEND);
+    render(
+      tripMainElement,
+      new TripInfoView(points).element,
+      RenderPosition.AFTERBEGIN
+    );
 
+    for (let i = 0; i < TRIP_POINT_COUNT; i++) {
+      renderTripPoint(tripListComponent.element, points[i]);
+    }
+  }
+};
 
-// render(tripListComponent.element, new EditPointFormView(tripPointsArray[0]).element, RenderPosition.BEFOREEND);
-
-// const tripPointComponent = new TripPointView()
-
-for(let i = 0; i < TRIP_POINT_COUNT; i++) {
-  renderTripPoint(tripListComponent.element, tripPoints[i]);
-}
+renderTripList(tripPoints);
