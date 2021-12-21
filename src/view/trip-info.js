@@ -2,7 +2,7 @@ import { getLastArrayElement, getFirstArrayElement } from '../mock/utils/utils.j
 import { convertDateToFormat, isSameMonth } from '../mock/utils/date.js';
 import { EVENT_DATE_FORMAT, ONLY_NUMBER_DATE_FORMAT } from '../mock/utils/consts.js';
 import {calcTripCost} from '../mock/utils/total-price.js';
-import { createElement } from '../render.js';
+import { AbstractView } from './abstract-view.js';
 
 const createShortTripInfoTitle = (tripPoints) => tripPoints.map(({eventDestination}) => eventDestination).join('  &mdash; ');
 
@@ -44,29 +44,16 @@ const createTripInfoTemplate = (tripPoints) => {
           </section>`;
 };
 
-// const createTripInfo = (tripPoints) => tripPoints.length === 0 || !tripPoints ? '' : createTripInfoTemplate(tripPoints);
-
-class TripInfoView {
-  #element = null;
+class TripInfoView extends AbstractView {
   #tripPoints = null;
 
   constructor (tripPoints) {
+    super();
     this.#tripPoints = tripPoints;
-  }
-
-  get element () {
-    if(!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
   }
 
   get template () {
     return this.#tripPoints === 0 || !this.#tripPoints ? '' : createTripInfoTemplate(this.#tripPoints);
-  }
-
-  removeElement () {
-    this.#element = null;
   }
 }
 

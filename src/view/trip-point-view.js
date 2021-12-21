@@ -2,7 +2,7 @@ import { getLowerCaseEventType } from '../mock/utils/utils.js';
 import {convertDateToFormat, getDatetimeAtr} from '../mock/utils/date.js';
 import {FULL_DATE_FORMAT, EVENT_DATE_FORMAT} from '../mock/utils/consts.js';
 import { convertDurationTime } from '../mock/convertor-time-duration.js';
-import {createElement} from '../render.js';
+import { AbstractView } from './abstract-view.js';
 
 const createOfferElements = (offers) => (
   `<ul class="event__selected-offers ">
@@ -53,23 +53,26 @@ const createNewPointTemplate = (tripPointCard) => {
             </li>`;
 };
 
-class TripPointView {
-  #element = null;
+class TripPointView extends AbstractView {
   #tripPoint = null;
 
-  constructor (tripPoint) {
-    this.#tripPoint  = tripPoint;
+  constructor(tripPoint) {
+    super();
+    this.#tripPoint = tripPoint;
   }
 
-  get element () {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
-  get template () {
+  get template() {
     return createNewPointTemplate(this.#tripPoint);
+  }
+
+  setEditClickHandler = (callback) => {
+    this._callback.editClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  }
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.editClick();
   }
 }
 

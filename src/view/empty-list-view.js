@@ -1,4 +1,4 @@
-import { createElement } from '../render';
+import { AbstractView } from './abstract-view.js';
 
 const createEmtyListTemplate = () => (
   `<p class="trip-events__msg">
@@ -6,22 +6,10 @@ const createEmtyListTemplate = () => (
   </p>`
 );
 
-class EmptyListView {
-  #element = null;
-
-  get element () {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
+class EmptyListView extends AbstractView {
 
   get template () {
     return createEmtyListTemplate();
-  }
-
-  removeElement () {
-    this.#element = null;
   }
 }
 
