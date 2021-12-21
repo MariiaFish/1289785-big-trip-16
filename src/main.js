@@ -10,7 +10,6 @@ import { genArray, sortArrayByDate } from './mock/utils/utils.js';
 import { TripInfoView } from './view/trip-info.js';
 import { EmptyListView } from './view/empty-list-view.js';
 
-
 const TRIP_POINT_COUNT = 5;
 
 const tripPoints = sortArrayByDate(genArray(TRIP_POINT_COUNT, generateTripPoint));
