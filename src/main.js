@@ -1,4 +1,4 @@
-import { RenderPosition, render, replace } from './mock/utils/render.js';
+import { RenderPosition, render, replace, remove } from './mock/utils/render.js';
 import { SiteNavigationView } from './view/site-navigation-view.js';
 import { FilterMenuView } from './view/trip-filter-view.js';
 import { SortMenuView } from './view/trip-sort-view.js';
@@ -49,6 +49,11 @@ const renderTripPoint = (tripListElement, tripPointCard) => {
 
   tripEditComponent.setEditClickHandler(() => {
     replaceEditFormToPoint();
+  });
+
+  tripEditComponent.setDeleteClickHandler(() => {
+    replaceEditFormToPoint();
+    remove(tripPointComponent);
   });
 
   render(tripListElement, tripPointComponent, RenderPosition.BEFOREEND);
