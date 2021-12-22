@@ -3,7 +3,7 @@ import {getValueAtrTime, getTodayDate, getThisMomentTime} from '../mock/utils/da
 import {createEventTypesListTemplate} from './event-type-list-view.js';
 import {EVENT_TYPES, EVENT_DESTINATION_POINTS, EVENT_DATE_FORMAT, THIS_MOMENT_TIME_FORMAT} from '../mock/utils/consts.js';
 import {createDestinationPointsListTemplate} from './destination-list.js';
-import { createElement } from '../render.js';
+import { AbstractView } from './abstract-view.js';
 
 const BLANK_TASK = {
   eventDate: getTodayDate(EVENT_DATE_FORMAT),
@@ -144,27 +144,46 @@ const createEditPointFormTemplate = (tripPointCard) => {
             </li>`;
 };
 
-class EditPointFormView {
-  #element = null;
+class EditPointFormView extends AbstractView {
   #tripPointCard = null;
 
   constructor(tripPointCard = BLANK_TASK) {
+    super();
     this.#tripPointCard = tripPointCard;
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
-  get template() {
+  get template () {
     return createEditPointFormTemplate(this.#tripPointCard);
   }
 
-  removeElement() {
-    this.#element = null;
+  setFormSubmitHandler = (callback) => {
+    this._callback.formSubmit = callback;
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+  }
+
+  setEditClickHandler = (callback) => {
+    this._callback.editClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  }
+
+  setDeleteClickHandler = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
+  }
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick();
+  }
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.editClick();
+  }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formSubmit();
   }
 }
 

@@ -1,4 +1,4 @@
-import { RenderPosition, render } from './render.js';
+import { RenderPosition, render, replace, remove } from './mock/utils/render.js';
 import { SiteNavigationView } from './view/site-navigation-view.js';
 import { FilterMenuView } from './view/trip-filter-view.js';
 import { SortMenuView } from './view/trip-sort-view.js';
@@ -10,8 +10,7 @@ import { genArray, sortArrayByDate } from './mock/utils/utils.js';
 import { TripInfoView } from './view/trip-info.js';
 import { EmptyListView } from './view/empty-list-view.js';
 
-
-const TRIP_POINT_COUNT = 0;
+const TRIP_POINT_COUNT = 5;
 
 const tripPoints = sortArrayByDate(genArray(TRIP_POINT_COUNT, generateTripPoint));
 const bodyElement = document.querySelector('.page-body');
@@ -24,11 +23,11 @@ const renderTripPoint = (tripListElement, tripPointCard) => {
   const tripEditComponent = new EditPointFormView(tripPointCard);
 
   const replacePointToEditForm = () => {
-    tripListElement.replaceChild(tripEditComponent.element, tripPointComponent.element);
+    replace(tripEditComponent, tripPointComponent);
   };
 
   const replaceEditFormToPoint = () => {
-    tripListElement.replaceChild(tripPointComponent.element, tripEditComponent.element);
+    replace(tripPointComponent, tripEditComponent);
   };
 
   const onEscKeyDown = (evt) => {
@@ -39,42 +38,41 @@ const renderTripPoint = (tripListElement, tripPointCard) => {
     }
   };
 
-  tripPointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+  tripPointComponent.setEditClickHandler(() => {
     replacePointToEditForm();
     document.addEventListener('keydown', onEscKeyDown);
   });
 
-  tripEditComponent.element.querySelector('form').addEventListener('submit', (evt) => {
-    evt.preventDefault();
-    replaceEditFormToPoint();
-    document.addEventListener('keydown', onEscKeyDown);
-  });
-
-  tripEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+  tripEditComponent.setFormSubmitHandler(() => {
     replaceEditFormToPoint();
   });
 
-  render(tripListElement, tripPointComponent.element, RenderPosition.BEFOREEND);
+  tripEditComponent.setEditClickHandler(() => {
+    replaceEditFormToPoint();
+  });
+
+  tripEditComponent.setDeleteClickHandler(() => {
+    replaceEditFormToPoint();
+    remove(tripPointComponent);
+  });
+
+  render(tripListElement, tripPointComponent, RenderPosition.BEFOREEND);
 };
 
-render(tripControls, new SiteNavigationView().element, RenderPosition.AFTERBEGIN);
-render(tripControls, new FilterMenuView().element, RenderPosition.BEFOREEND);
-render(tripEvent, new SortMenuView().element, RenderPosition.BEFOREEND);
+render(tripControls, new SiteNavigationView(), RenderPosition.AFTERBEGIN);
+render(tripControls, new FilterMenuView(), RenderPosition.BEFOREEND);
+render(tripEvent, new SortMenuView(), RenderPosition.BEFOREEND);
 
 const renderTripList = (points) => {
   if (points.length === 0 || !points) {
-    render(tripEvent, new EmptyListView().element, RenderPosition.BEFOREEND);
+    render(tripEvent, new EmptyListView(), RenderPosition.BEFOREEND);
   } else {
     const tripListComponent = new TripListView();
-    render(tripEvent, tripListComponent.element, RenderPosition.BEFOREEND);
-    render(
-      tripMainElement,
-      new TripInfoView(points).element,
-      RenderPosition.AFTERBEGIN
-    );
+    render(tripEvent, tripListComponent, RenderPosition.BEFOREEND);
+    render(tripMainElement, new TripInfoView(points), RenderPosition.AFTERBEGIN);
 
     for (let i = 0; i < TRIP_POINT_COUNT; i++) {
-      renderTripPoint(tripListComponent.element, points[i]);
+      renderTripPoint(tripListComponent, points[i]);
     }
   }
 };
