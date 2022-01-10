@@ -1,20 +1,21 @@
 import { AbstractView } from './abstract-view.js';
 
-const createSiteMenuTemplate = () => (
-  `<div class="trip-controls__navigation">
+const createControlsNavigationTemplate = () =>
+  `<div class="trip-main__trip-controls  trip-controls">
+    <div class="trip-controls__navigation">
               <h2 class="visually-hidden">Switch trip view</h2>
               <nav class="trip-controls__trip-tabs  trip-tabs">
                 <a class="trip-tabs__btn  trip-tabs__btn--active" href="#">Table</a>
                 <a class="trip-tabs__btn" href="#">Stats</a>
               </nav>
-            </div>`
-);
+            </div>
+  </div>`;
 
-class SiteNavigationView extends AbstractView {
+class ControlsNavigationView extends AbstractView {
 
   get template () {
-    return createSiteMenuTemplate();
+    return createControlsNavigationTemplate();
   }
 }
 
-export { SiteNavigationView };
+export { ControlsNavigationView };

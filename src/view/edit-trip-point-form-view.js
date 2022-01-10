@@ -156,7 +156,7 @@ class EditPointFormView extends AbstractView {
     return createEditPointFormTemplate(this.#tripPointCard);
   }
 
-  setFormSubmitHandler = (callback) => {
+  setEditFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
   }
