@@ -39,15 +39,11 @@ class TripPointPresenter {
     this.#tripEditComponent.setDeleteClickHandler(this.#handlerDeleteClic);
 
     if (prevTripPointComponent === null || prevTripEditComponent === null) {
-      render(
-        this.#tripListComponent,
-        this.#tripPointComponent,
-        RenderPosition.BEFOREEND
-      );
+      render(this.#tripListComponent, this.#tripPointComponent, RenderPosition.BEFOREEND);
       return;
     }
 
-    if (this.#tripListComponent.element.contains(prevTripPointComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#tripPointComponent, prevTripPointComponent);
     }
 
