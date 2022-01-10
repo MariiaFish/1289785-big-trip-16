@@ -5,7 +5,7 @@ import { TripEventsSection } from '../view/trip-events-section-view.js';
 import { ButtonAddEventView } from '../view/add-event-button.js';
 import { EmptyListView } from '../view/empty-list-view.js';
 import { SortMenuView } from '../view/trip-sort-view.js';
-import { RenderPosition, render, remove, updateItem } from '../mock/utils/render.js';
+import { RenderPosition, render, updateItem } from '../mock/utils/render.js';
 import { TripInfoView } from '../view/trip-info.js';
 import { TripPointPresenter } from './trip-point-presenter.js';
 
