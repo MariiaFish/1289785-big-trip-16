@@ -3,6 +3,7 @@ import {generateDate, generateEndEventDate, convertDateToFormat } from './utils/
 import { calcTimeDuration } from './utils/duration.js';
 import { getOffersArr, generateOffersData } from './offer-data.js';
 import {MIN_HOUR_VALUE, MIN_TWO_DIGIT_VALUE, MAX_HOUR_VALUE, MIDNIGHT_VALUE, MAX_MINUTE_VALUE, MIN_MINUTE_VALUE, MAX_DAYS_GAP, MIN_DAYS_GAP, EVENT_TYPES, OFFER_TYPES, EVENT_DESTINATION_POINTS, FULL_DATE_FORMAT, DESTINATION_DISCRIPTION, MIN_PRICE_VALUE, MAX_PRICE_VALUE} from'./utils/consts.js';
+import { nanoid } from 'nanoid';
 
 const processTimeValue = (value) => {
   let time = value;
@@ -30,6 +31,7 @@ const generateTripPoint = () => {
   const eventDestination = getRandomArrayElement(EVENT_DESTINATION_POINTS);
 
   const tripPoint = {
+    id: nanoid(),
     eventDate: randomDate,
     eventType,
     eventDestination,
