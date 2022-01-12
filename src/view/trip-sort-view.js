@@ -18,7 +18,7 @@ const createSortMenuTemplate = () => (
             </div>
 
             <div class="trip-sort__item  trip-sort__item--price">
-              <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price" checked>
+              <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price">
               <label class="trip-sort__btn" for="sort-price">Price</label>
             </div>
 
@@ -30,10 +30,19 @@ const createSortMenuTemplate = () => (
 );
 
 class SortMenuView extends AbstractView {
-
-  get template () {
+  get template() {
     return createSortMenuTemplate();
   }
+
+  setSortValueChangeHandler = (callback) => {
+    this._callback.sortValueChange = callback;
+    this.element.addEventListener('change', this.#sortValueChangeHandler);
+  };
+
+  #sortValueChangeHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.sortValueChange(evt.target.value);
+  };
 }
 
 export {SortMenuView};
