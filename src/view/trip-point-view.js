@@ -65,7 +65,6 @@ class TripPointView extends SmartView {
   }
 
   restoreHandlers = () => {
-    console.log(0);
   }
 
   setEditClickHandler = (callback) => {
