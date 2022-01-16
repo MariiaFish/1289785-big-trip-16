@@ -1,8 +1,8 @@
 import { getRandomArrayElement, getRandomInteger, generateBoolean, getRandomArrayLength, generatePhotoAdress, genArray} from './utils/utils.js';
 import {generateDate, generateEndEventDate, convertDateToFormat } from './utils/date.js';
 import { calcTimeDuration } from './utils/duration.js';
-import { getOffersArr, generateOffersData } from './offer-data.js';
-import {MIN_HOUR_VALUE, MIN_TWO_DIGIT_VALUE, MAX_HOUR_VALUE, MIDNIGHT_VALUE, MAX_MINUTE_VALUE, MIN_MINUTE_VALUE, MAX_DAYS_GAP, MIN_DAYS_GAP, EVENT_TYPES, OFFER_TYPES, EVENT_DESTINATION_POINTS, FULL_DATE_FORMAT, DESTINATION_DISCRIPTION, MIN_PRICE_VALUE, MAX_PRICE_VALUE} from'./utils/consts.js';
+import { offerCards } from './offer-data.js';
+import {MIN_HOUR_VALUE, MIN_TWO_DIGIT_VALUE, MAX_HOUR_VALUE, MIDNIGHT_VALUE, MAX_MINUTE_VALUE, MIN_MINUTE_VALUE, MAX_DAYS_GAP, MIN_DAYS_GAP, EVENT_TYPES, EVENT_DESTINATION_POINTS, FULL_DATE_FORMAT, DESTINATION_DISCRIPTION, MIN_PRICE_VALUE, MAX_PRICE_VALUE} from'./utils/consts.js';
 import { nanoid } from 'nanoid';
 
 const processTimeValue = (value) => {
@@ -26,8 +26,7 @@ const generateRandomMinutes = () => processTimeValue(getRandomInteger(MAX_MINUTE
 const generateTripPoint = () => {
   const randomDate = generateDate(getRandomInteger(-MAX_DAYS_GAP, MAX_DAYS_GAP));
   const randomEndEventDate = generateEndEventDate(randomDate, getRandomInteger(MIN_DAYS_GAP, MAX_DAYS_GAP));
-  const eventType = getRandomArrayElement(EVENT_TYPES);
-  const offersObj = generateOffersData(OFFER_TYPES);
+  const eventType = (getRandomArrayElement(EVENT_TYPES)).toLowerCase();
   const eventDestination = getRandomArrayElement(EVENT_DESTINATION_POINTS);
 
   const tripPoint = {
@@ -56,10 +55,18 @@ const generateTripPoint = () => {
     isFavorite: generateBoolean(),
   };
 
-  const offersArray = getOffersArr(offersObj, tripPoint);
-  tripPoint.offers = offersArray ? getRandomArrayLength(offersArray, getRandomInteger(1, offersArray.length)) : '';
+  tripPoint.offers = offerCards[tripPoint.eventType];
   calcTimeDuration(tripPoint);
   return tripPoint;
 };
 
-export {generateTripPoint, generateRandomHours, generateRandomMinutes};
+const updateDescriptionTitle = () => getRandomArrayLength(DESTINATION_DISCRIPTION, getRandomInteger(1, 5));
+const updateDescriptionPhotos = () => genArray(getRandomInteger(1, 5),generatePhotoAdress);
+
+export {
+  generateTripPoint,
+  generateRandomHours,
+  generateRandomMinutes,
+  updateDescriptionTitle,
+  updateDescriptionPhotos,
+};

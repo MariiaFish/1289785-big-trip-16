@@ -5,6 +5,7 @@ import { TripPresenter } from './presenter/trip-presenter.js';
 const TRIP_POINT_COUNT = 7;
 
 const tripPoints = sortArrayByDate(genArray(TRIP_POINT_COUNT, generateTripPoint));
+// console.log(tripPoints);
 
 const bodyElement = document.querySelector('.page-body');
 const tripMainContainer = bodyElement.querySelector('.trip-main');

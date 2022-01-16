@@ -2,7 +2,7 @@ import { getLowerCaseEventType } from '../mock/utils/utils.js';
 import {convertDateToFormat, getDatetimeAtr} from '../mock/utils/date.js';
 import {FULL_DATE_FORMAT, EVENT_DATE_FORMAT} from '../mock/utils/consts.js';
 import { convertDurationTime } from '../mock/convertor-time-duration.js';
-import { AbstractView } from './abstract-view.js';
+import { SmartView } from './smart-view.js';
 
 const createOfferElements = (offers) => (
   `<ul class="event__selected-offers ">
@@ -53,16 +53,19 @@ const createNewPointTemplate = (tripPointCard) => {
             </li>`;
 };
 
-class TripPointView extends AbstractView {
-  #tripPoint = null;
+class TripPointView extends SmartView {
 
   constructor(tripPoint) {
     super();
-    this.#tripPoint = tripPoint;
+    this._data = TripPointView.parsePointToData(tripPoint);
   }
 
   get template() {
-    return createNewPointTemplate(this.#tripPoint);
+    return createNewPointTemplate(this._data);
+  }
+
+  restoreHandlers = () => {
+    console.log(0);
   }
 
   setEditClickHandler = (callback) => {
@@ -83,6 +86,14 @@ class TripPointView extends AbstractView {
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick();
+  }
+
+  static parsePointToData = (point) => ({...point});
+
+  static parseDataToPoint = (data) => {
+    const point = {...data};
+    // еще какая-то логика
+    return point;
   }
 }
 

@@ -24,7 +24,7 @@ class TripPresenter {
   #eventsSectionComponent = new TripEventsSection();
   #tripListComponent = new TripListView();
   #emptyListComponent = new EmptyListView();
-  #tripPontPresenter = new Map();
+  #tripPointPresenterMap = new Map();
   #currentSortValue = SortValue.DEFAULT;
 
   #eventTripPoints = [];
@@ -49,28 +49,28 @@ class TripPresenter {
     this.#renderEvent();
   };
 
-  #renderNoPoints = () => {
-    render(this.#tripEventContainer, this.#emptyListComponent, RenderPosition.BEFOREEND);
-  };
-
   #renderTripPoint = (tripPointCard) => {
     const tripPointPresenter = new TripPointPresenter(this.#tripListComponent, this.#handleTripPointChange, this.#handelModeChange);
     tripPointPresenter.init(tripPointCard);
-    this.#tripPontPresenter.set(tripPointCard.id, tripPointPresenter);
-  };
-
-  #handelModeChange = () => {
-    this.#tripPontPresenter.forEach((presenter) => presenter.resetView());
+    this.#tripPointPresenterMap.set(tripPointCard.id, tripPointPresenter);
   };
 
   #handleTripPointChange = (updatedTripPoint) => {
     this.#eventTripPoints = updateItem(this.#eventTripPoints, updatedTripPoint);
     this.#sourcedTripPoints = updateItem(this.#sourcedTripPoints, updatedTripPoint);
-    this.#tripPontPresenter.get(updatedTripPoint.id).init(updatedTripPoint);
+    this.#tripPointPresenterMap.get(updatedTripPoint.id).init(updatedTripPoint);
+  };
+
+  #handelModeChange = () => {
+    this.#tripPointPresenterMap.forEach((presenter) => presenter.resetView());
+  };
+
+  #renderNoPoints = () => {
+    render(this.#tripEventContainer, this.#emptyListComponent, RenderPosition.BEFOREEND);
   };
 
   #renderTripPoints = (from, to) => {
-    this.#eventTripPoints.slice(from, to).forEach((eventTripPoint) => this.#renderTripPoint(eventTripPoint));
+    this.#eventTripPoints.slice(from, to).forEach((presenter) => this.#renderTripPoint(presenter));
   };
 
   #renderSort = () => {
@@ -109,8 +109,8 @@ class TripPresenter {
   };
 
   #clearPointsList = () => {
-    this.#tripPontPresenter.forEach((presenter) => presenter.destroy());
-    this.#tripPontPresenter.clear();
+    this.#tripPointPresenterMap.forEach((presenter) => presenter.destroy());
+    this.#tripPointPresenterMap.clear();
   };
 
   #renderTripInfo = () => {

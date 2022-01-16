@@ -52,7 +52,7 @@ class TripPointPresenter {
     }
 
     remove(prevTripPointComponent);
-    remove(this.#tripEditComponent);
+    remove(prevTripEditComponent);
   };
 
   destroy = () => {
@@ -82,6 +82,7 @@ class TripPointPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      this.#tripEditComponent.updateData({...this.#tripEditComponent._initialData});
       this.#replaceEditFormToPoint();
     }
   };
