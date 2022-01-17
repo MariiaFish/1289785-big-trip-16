@@ -160,6 +160,8 @@ class EditPointFormView extends SmartView {
     return createEditPointFormTemplate(this._data);
   }
 
+   reset = (tripPointCard) => this.updateData(EditPointFormView.parsePointToData(tripPointCard));
+
   restoreHandlers = () => {
     this.#setInnerHandlers();
     this.setEditFormSubmitHandler(this._callback.formSubmit);
