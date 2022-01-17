@@ -1,9 +1,10 @@
 import { getLowerCaseEventType } from '../mock/utils/utils.js';
+import { updateDescriptionTitle, updateDescriptionPhotos } from '../mock/trip-point-data.js';
 import {getValueAtrTime, getTodayDate, getThisMomentTime} from '../mock/utils/date.js';
 import {createEventTypesListTemplate} from './event-type-list-view.js';
-import {EVENT_TYPES, EVENT_DESTINATION_POINTS, EVENT_DATE_FORMAT, THIS_MOMENT_TIME_FORMAT} from '../mock/utils/consts.js';
-import {createDestinationPointsListTemplate} from './destination-list.js';
-import { AbstractView } from './abstract-view.js';
+import {EVENT_TYPES, EVENT_DATE_FORMAT, THIS_MOMENT_TIME_FORMAT} from '../mock/utils/consts.js';
+import { offerCards } from '../mock/offer-data.js';
+import { SmartView } from './smart-view.js';
 
 const BLANK_TASK = {
   eventDate: getTodayDate(EVENT_DATE_FORMAT),
@@ -38,16 +39,18 @@ const createEventTypesTemplate = (eventType) => {
                     </div>`;
 };
 
-const createEventTitleEditTemplate = (eventType, eventDestination) => {
-  const eventDestinationList = createDestinationPointsListTemplate(EVENT_DESTINATION_POINTS);
-  return `<div class="event__field-group  event__field-group--destination">
+const createEventTitleEditTemplate = (eventType, eventDestination) => (
+  `<div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${eventType}
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${eventDestination}" list="destination-list-1">
-                    ${eventDestinationList}
-                    </div>`;
-};
+                    <datalist id="destination-list-1">
+                      <option value="Amsterdam"></option>
+                      <option value="Geneva"></option>
+                      <option value="Chamonix"></option>
+                    </datalist>
+                    </div>`);
 
 const createEventTimeTemplate = (eventDate, startTime, endDate, endTime) => (
   `<div class="event__field-group  event__field-group--time">
@@ -102,7 +105,7 @@ const createPhotosContainerTemplate = (photos) => (
 );
 
 const createEditPointFormTemplate = (tripPointCard) => {
-  const { eventDate, eventType, eventDestination, eventTime: {startTime: {startTime}, endTime: {endDate, endTime}}, offers,destination: {title, photos}, price} = tripPointCard;
+  const { eventDate, eventDestination, eventType, eventTime: {startTime: {startTime}, endTime: {endDate, endTime}}, offers, destination: {title, photos}, price} = tripPointCard;
 
   const typeTemplate = createEventTypesTemplate(eventType);
   const eventTitleTemplate = createEventTitleEditTemplate(eventType, eventDestination);
@@ -144,17 +147,26 @@ const createEditPointFormTemplate = (tripPointCard) => {
             </li>`;
 };
 
-class EditPointFormView extends AbstractView {
-  #tripPointCard = null;
+class EditPointFormView extends SmartView {
 
   constructor(tripPointCard = BLANK_TASK) {
     super();
-    this.#tripPointCard = tripPointCard;
+    this._data = EditPointFormView.parsePointToData(tripPointCard);
+    this._initialData = EditPointFormView.parsePointToData(tripPointCard);
+    this.#setInnerHandlers();
   }
 
   get template () {
-    return createEditPointFormTemplate(this.#tripPointCard);
+    return createEditPointFormTemplate(this._data);
   }
+
+  restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setEditFormSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+    this.setEditClickHandler(this._callback.editClick);
+  }
+
 
   setEditFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
@@ -171,19 +183,49 @@ class EditPointFormView extends AbstractView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
   }
 
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-list').addEventListener('change', this.#eventTypeChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationChangeHandler);
+  }
+
+  #eventTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.updateData({
+      eventType: evt.target.value,
+      offers: offerCards[evt.target.value]
+    });
+  }
+
+  #eventDestinationChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.updateData({
+      eventDestination: evt.target.value,
+      destination: {title: updateDescriptionTitle(), photos: updateDescriptionPhotos()}
+    });
+  }
+
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.deleteClick();
+    this._callback.deleteClick(EditPointFormView.parseDataToPoint(this._data));
   }
 
   #editClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.editClick();
+    this.updateData({ ...this._initialData });
+    this._callback.editClick(EditPointFormView.parseDataToPoint(this._userData));
   }
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(EditPointFormView.parseDataToPoint(this._data));
+  }
+
+  static parsePointToData = (point) => ({...point});
+
+  static parseDataToPoint = (data) => {
+    const point = {...data};
+    // еще какая-то логика
+    return point;
   }
 }
 

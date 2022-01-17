@@ -1,5 +1,5 @@
 import { getRandomArrayElement, getRandomInteger,genArray} from './utils/utils.js';
-import { OFFER_TITLES, MIN_PRICE_VALUE, MAX_PRICE_VALUE } from './utils/consts.js';
+import { OFFER_TITLES, MIN_PRICE_VALUE, MAX_PRICE_VALUE, OFFER_TYPES } from './utils/consts.js';
 
 class OfferCard {
   constructor() {
@@ -18,7 +18,6 @@ const generateOffersData = (array) => {
   return offers;
 };
 
-const getOffersArr = (offersObj, tripPoint) => offersObj[tripPoint.eventType] ? offersObj[tripPoint.eventType]: '';
+const offerCards = generateOffersData(OFFER_TYPES);
 
-
-export { getOffersArr, generateOffersData };
+export  { offerCards };
