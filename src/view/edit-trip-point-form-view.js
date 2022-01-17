@@ -28,7 +28,7 @@ const BLANK_TASK = {
 };
 
 const createEventTypesTemplate = (eventType) => {
-  const typesList = createEventTypesListTemplate(EVENT_TYPES);
+  const typesList = createEventTypesListTemplate(EVENT_TYPES, eventType);
   return `<div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
