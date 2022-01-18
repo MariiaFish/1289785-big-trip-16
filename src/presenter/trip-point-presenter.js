@@ -62,7 +62,6 @@ class TripPointPresenter {
 
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
-      this.#tripEditComponent.reset(this.#tripPoint);
       this.#replaceEditFormToPoint();
     }
   };
@@ -102,6 +101,7 @@ class TripPointPresenter {
   };
 
   #handlerRollupClick = () => {
+    this.#tripEditComponent.reset(this.#tripPoint);
     this.#replaceEditFormToPoint();
   };
 
