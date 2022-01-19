@@ -1,25 +1,26 @@
 import { getLowerCaseEventType } from '../mock/utils/utils.js';
+import {convertDateToFormat} from '../mock/utils/date.js';
 import { updateDescriptionTitle, updateDescriptionPhotos } from '../mock/trip-point-data.js';
-import {getValueAtrTime, getTodayDate, getThisMomentTime} from '../mock/utils/date.js';
+import { getTodayDate} from '../mock/utils/date.js';
 import {createEventTypesListTemplate} from './event-type-list-view.js';
-import {EVENT_TYPES, EVENT_DATE_FORMAT, THIS_MOMENT_TIME_FORMAT} from '../mock/utils/consts.js';
+import {EVENT_TYPES, EVENT_DATE_FORMAT, VALUE_ATR_FULL_DATE_FORMAT} from '../mock/utils/consts.js';
 import { offerCards } from '../mock/offer-data.js';
 import { SmartView } from './smart-view.js';
+import flatpickr from 'flatpickr';
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+import dayjs from 'dayjs';
 
 const BLANK_TASK = {
   eventDate: getTodayDate(EVENT_DATE_FORMAT),
   eventType: '',
   offers: '',
   eventDestination: '',
-  eventTime: {
-    startTime: {
-      startTime: getThisMomentTime(THIS_MOMENT_TIME_FORMAT),
+  eventTime:
+    {
+      startDate: dayjs(),
+      endDate: dayjs(),
+      eventDuration: '',
     },
-    endTime: {
-      endDate: '',
-      endTime: getThisMomentTime(THIS_MOMENT_TIME_FORMAT),
-    }
-  },
   price: '',
   destination: {
     title: '',
@@ -28,7 +29,7 @@ const BLANK_TASK = {
 };
 
 const createEventTypesTemplate = (eventType) => {
-  const typesList = createEventTypesListTemplate(EVENT_TYPES);
+  const typesList = createEventTypesListTemplate(EVENT_TYPES, eventType);
   return `<div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
@@ -52,13 +53,13 @@ const createEventTitleEditTemplate = (eventType, eventDestination) => (
                     </datalist>
                     </div>`);
 
-const createEventTimeTemplate = (eventDate, startTime, endDate, endTime) => (
+const createEventTimeTemplate = (startDate, endDate) => (
   `<div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${getValueAtrTime(eventDate, startTime)}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${convertDateToFormat(startDate, VALUE_ATR_FULL_DATE_FORMAT)}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${getValueAtrTime(endDate, endTime)}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${convertDateToFormat(endDate, VALUE_ATR_FULL_DATE_FORMAT)}">
                   </div>`
 );
 
@@ -105,11 +106,11 @@ const createPhotosContainerTemplate = (photos) => (
 );
 
 const createEditPointFormTemplate = (tripPointCard) => {
-  const { eventDate, eventDestination, eventType, eventTime: {startTime: {startTime}, endTime: {endDate, endTime}}, offers, destination: {title, photos}, price} = tripPointCard;
+  const { eventDestination, eventType, endDate, startDate, offers, destination: {title, photos}, price} = tripPointCard;
 
   const typeTemplate = createEventTypesTemplate(eventType);
   const eventTitleTemplate = createEventTitleEditTemplate(eventType, eventDestination);
-  const eventTimeTemplate = createEventTimeTemplate(eventDate, startTime, endDate, endTime);
+  const eventTimeTemplate = createEventTimeTemplate(startDate, endDate);
   const priceTemplate = createEventPriceTemplate(price);
   const offersTemplate = offers ? createOffersSectionTemplate(offers) : '';
   const destinationTitleTemplate = createDestinationTitleTemplate(title);
@@ -148,16 +149,22 @@ const createEditPointFormTemplate = (tripPointCard) => {
 };
 
 class EditPointFormView extends SmartView {
+  #datepickerStart = null;
+  #datepickerEnd = null;
 
   constructor(tripPointCard = BLANK_TASK) {
     super();
     this._data = EditPointFormView.parsePointToData(tripPointCard);
-    this._initialData = EditPointFormView.parsePointToData(tripPointCard);
     this.#setInnerHandlers();
+    this.#setDatepickers();
   }
 
   get template () {
     return createEditPointFormTemplate(this._data);
+  }
+
+  reset = (tripPointCard) => {
+    this.updateData(EditPointFormView.parsePointToData(tripPointCard));
   }
 
   restoreHandlers = () => {
@@ -165,8 +172,22 @@ class EditPointFormView extends SmartView {
     this.setEditFormSubmitHandler(this._callback.formSubmit);
     this.setDeleteClickHandler(this._callback.deleteClick);
     this.setEditClickHandler(this._callback.editClick);
+    this.#setDatepickers();
   }
 
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepickerEnd) {
+      this.#datepickerEnd.destroy();
+      this.#datepickerEnd = null;
+    }
+
+    if (this.#datepickerStart) {
+      this.#datepickerStart.destroy();
+      this.#datepickerStart = null;
+    }
+  }
 
   setEditFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
@@ -181,6 +202,28 @@ class EditPointFormView extends SmartView {
   setDeleteClickHandler = (callback) => {
     this._callback.deleteClick = callback;
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
+  }
+
+  #setDatepickers = () => {
+    this.#datepickerStart = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._data.startDate.toDate(),
+        enableTime: true,
+        onClose: this.#handleStartDate,
+        'time_24hr': true,
+      }
+    );
+    this.#datepickerEnd = flatpickr(this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: (this._data.endDate).toDate(),
+        enableTime: true,
+        onClose: this.#handleEndDate,
+        'time_24hr': true,
+      },
+    );
   }
 
   #setInnerHandlers = () => {
@@ -211,14 +254,16 @@ class EditPointFormView extends SmartView {
 
   #editClickHandler = (evt) => {
     evt.preventDefault();
-    this.updateData({ ...this._initialData });
-    this._callback.editClick(EditPointFormView.parseDataToPoint(this._userData));
+    this._callback.editClick(EditPointFormView.parseDataToPoint(this._data));
   }
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this._callback.formSubmit(EditPointFormView.parseDataToPoint(this._data));
   }
+
+  #handleStartDate = (userDate) => this.updateData({startDate: dayjs(userDate)});
+  #handleEndDate = (userDate) => this.updateData({endDate: dayjs(userDate)});
 
   static parsePointToData = (point) => ({...point});
 

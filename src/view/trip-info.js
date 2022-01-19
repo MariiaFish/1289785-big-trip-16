@@ -15,7 +15,7 @@ const createLongTripInfoTitle = (tripPoints) => {
 
 const createTripInfoDatesTemplate = (tripPoints) => {
 
-  const {eventTime: {endTime: {endDate}}} = getLastArrayElement(tripPoints);
+  const {endDate} = getLastArrayElement(tripPoints);
   const { eventDate } = getFirstArrayElement(tripPoints);
 
   const startTripDate = convertDateToFormat(eventDate, EVENT_DATE_FORMAT);

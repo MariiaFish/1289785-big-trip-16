@@ -1,8 +1,9 @@
 import { getLowerCaseEventType } from '../mock/utils/utils.js';
-import {convertDateToFormat, getDatetimeAtr} from '../mock/utils/date.js';
-import {FULL_DATE_FORMAT, EVENT_DATE_FORMAT} from '../mock/utils/consts.js';
+import {convertDateToFormat} from '../mock/utils/date.js';
+import {FULL_DATE_FORMAT, EVENT_DATE_FORMAT, TIME_FORMAT, DATE_TIME} from '../mock/utils/consts.js';
 import { convertDurationTime } from '../mock/convertor-time-duration.js';
 import { SmartView } from './smart-view.js';
+
 
 const createOfferElements = (offers) => (
   `<ul class="event__selected-offers ">
@@ -15,7 +16,7 @@ const createOfferElements = (offers) => (
 );
 
 const createNewPointTemplate = (tripPointCard) => {
-  const { eventDate, eventType, offers, eventTitle, eventTime: {startTime: {startTime}, endTime: {endDate, endTime}, eventDuration}, price, isFavorite} = tripPointCard;
+  const { eventDate, eventType, offers, eventTitle, endDate, startDate, eventDuration, price, isFavorite} = tripPointCard;
 
   const favoriteClass = isFavorite === true ? 'event__favorite-btn--active' : '';
   const offersList = offers ? createOfferElements(offers) : '';
@@ -29,9 +30,9 @@ const createNewPointTemplate = (tripPointCard) => {
                 <h3 class="event__title">${eventTitle}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="${getDatetimeAtr(eventDate, startTime)}">${startTime}</time>
+                    <time class="event__start-time" datetime="${convertDateToFormat(startDate, DATE_TIME)}">${convertDateToFormat(startDate, TIME_FORMAT)}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="${getDatetimeAtr(endDate, endTime)}">${endTime}</time>
+                    <time class="event__end-time" datetime="${convertDateToFormat(endDate, DATE_TIME)}">${convertDateToFormat(endDate, TIME_FORMAT)}</time>
                   </p>
                   <p class="event__duration">${convertDurationTime(eventDuration)}</p>
                 </div>
