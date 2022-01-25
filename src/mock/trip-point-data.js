@@ -1,11 +1,11 @@
 import { getRandomArrayElement, getRandomInteger, generateBoolean, getRandomArrayLength, generatePhotoAdress, genArray} from './utils/utils.js';
 import {generateDate, generateEndEventDate } from './utils/date.js';
-import { offerCards } from './offer-data.js';
-import { MAX_DAYS_GAP, MIN_DAYS_GAP, EVENT_TYPES, EVENT_DESTINATION_POINTS, DESTINATION_DISCRIPTION, MIN_PRICE_VALUE, MAX_PRICE_VALUE, FULL_DATE_FORMAT} from'./utils/consts.js';
+// import { offerCards } from './offer-data.js';
+import { MAX_DAYS_GAP, MIN_DAYS_GAP, EVENT_TYPES, EVENT_DESTINATION_POINTS, DESTINATION_DISCRIPTION, MIN_PRICE_VALUE, MAX_PRICE_VALUE, FULL_DATE_FORMAT, OFFERS} from'./utils/consts.js';
 import { nanoid } from 'nanoid';
 import dayjs from 'dayjs';
 import { convertDateToFormat } from './utils/date.js';
-import { genRandomTime, calcTimeDuration} from './utils/event-time.js';
+import { calcTimeDuration, genRandomTime} from './utils/event-time.js';
 
 const generateTripPoint = () => {
   const randomDate = generateDate(getRandomInteger(-MAX_DAYS_GAP, MAX_DAYS_GAP));
@@ -15,10 +15,9 @@ const generateTripPoint = () => {
 
   const tripPoint = {
     id: nanoid(),
-    eventDate: randomDate,
+    eventDate: '',
     eventType,
     eventDestination,
-    eventTitle: `${eventType} ${eventDestination}`,
     startDate: dayjs(`${convertDateToFormat(randomDate, FULL_DATE_FORMAT)}T${genRandomTime()}`),
     endDate: dayjs(`${convertDateToFormat(randomEndEventDate, FULL_DATE_FORMAT)}T${genRandomTime()}`),
     eventDuration: '',
@@ -31,8 +30,9 @@ const generateTripPoint = () => {
     isFavorite: generateBoolean(),
   };
 
-  tripPoint.offers = offerCards[tripPoint.eventType];
-  calcTimeDuration(tripPoint);
+  tripPoint.offers = OFFERS[tripPoint.eventType];
+  tripPoint.eventDuration = calcTimeDuration(tripPoint.endDate, tripPoint.startDate);
+  tripPoint.eventDate = tripPoint.startDate;
   return tripPoint;
 };
 

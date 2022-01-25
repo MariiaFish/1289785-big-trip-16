@@ -31,16 +31,59 @@ const ONLY_NUMBER_DATE_FORMAT = 'DD';
 
 const EVENT_TYPES = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
 const EVENT_DESTINATION_POINTS = ['Amsterdam', 'Geneva', 'Chamonix'];
-const OFFER_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'restaurant'];
+
+const OFFERS = {
+  taxi: [['order-uber', 30], ['order-uber-priority', 50], ['add-luggage', 10], ['switch-to-comfort-class', 15]],
+  bus: [['add-luggage', 10], ['choose-seats', 10]],
+  train: [['add-luggage', 10], ['choose-seats', 10], ['add-meal', 24]],
+  ship: [['add-luggage', 10], ['choose-seats', 10], ['add-meal', 24]],
+  drive: [['rent-car', 100], ['rent-priority-car', 300], ['rent-lux-car', 500]],
+  flight: [['add-luggage', 10], ['choose-seats', 10], ['add-meal', 24]],
+  'check-in': [['add-breakfast', 40], ['add-special-tv-channels', 5], ['add-dinner', 40], ['add-laundry-services', 30], ['add-parking-place', 10]],
+  restaurant: [['choose-table', 5], ['add-parking-place', 5]],
+};
 
 const DESTINATION_DISCRIPTION = ['Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'Cras aliquet varius magna, non porta ligula feugiat eget.', 'Fusce tristique felis at fermentum pharetra.', 'Aliquam id orci ut lectus varius viverra.', 'Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.', 'Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.', 'Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui.', 'Sed sed nisi sed augue convallis suscipit in sed felis.', 'Aliquam erat volutpat.', 'Nunc fermentum tortor ac porta dapibus.', 'In rutrum ac purus sit amet tempus.'];
-
-const OFFER_TITLES = ['Order Uber', 'Order Uber Priority', 'Add luggage', 'Switch to comfort class', 'Add meal', 'Choose seats', 'Rent a car', 'Rent a priority car', 'Rent a lux car', 'Add breakfast', 'Add special TV-channels', 'Add dinner', 'Add laundry services', 'Choose table', 'Add parking place'];
 
 const SortValue = {
   DEFAULT: 'sort-day',
   TIME_UP: 'sort-time',
   PRICE_UP: 'sort-price',
+};
+
+const FLATPICKER_SETTINGS = {
+  dateFormat: 'd/m/y H:i',
+  enableTime: true,
+  'time_24hr': true,
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+const UserAction = {
+  UPDATE_TRIP_POINT: 'UPDATE_TRIP_POINT',
+  ADD_TRIP_POINT: 'ADD_TRIP_POINT',
+  DELETE_TRIP_POINT: 'DELETE_TRIP_POINT',
+};
+
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PAST: 'past',
+};
+
+const EmptyListType = {
+  EVERYTHING: 'Click New Event to create your first point',
+  FUTURE: 'There are no future events now',
+  PAST: 'There are no past events now',
+};
+
+const DateType = {
+  START_DATA: 'startDate',
+  END_DATA: 'endDate',
 };
 
 export {
@@ -59,10 +102,10 @@ export {
   MIN_PRICE_VALUE,
   MAX_PRICE_VALUE,
   DESTINATION_DISCRIPTION,
-  OFFER_TYPES,
+  // OFFER_TYPES,
   EVENT_DESTINATION_POINTS,
   EVENT_TYPES,
-  OFFER_TITLES,
+  // OFFER_TITLES,
   HOUR_VALUE,
   DAY_VALUE,
   EVENT_DATE_FORMAT,
@@ -72,4 +115,11 @@ export {
   TIME_FORMAT,
   DATE_TIME,
   VALUE_ATR_FULL_DATE_FORMAT,
+  FLATPICKER_SETTINGS,
+  UpdateType,
+  UserAction,
+  FilterType,
+  EmptyListType,
+  DateType,
+  OFFERS,
 };

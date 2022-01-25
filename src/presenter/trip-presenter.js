@@ -1,81 +1,160 @@
 import { TripListView } from '../view/trip-list-view.js';
 import { ControlsNavigationView } from '../view/trip-controls-navigation-view.js';
-import { FilterMenuView } from '../view/trip-filter-view.js';
 import { TripEventsSection } from '../view/trip-events-section-view.js';
 import { ButtonAddEventView } from '../view/add-event-button.js';
 import { EmptyListView } from '../view/empty-list-view.js';
 import { SortMenuView } from '../view/trip-sort-view.js';
-import { RenderPosition, render, updateItem } from '../mock/utils/render.js';
-import {timeUp, priceUp} from '../mock/utils/utils.js';
+import { RenderPosition, render, remove } from '../mock/utils/render.js';
+import {timeUp, priceUp, dateDown} from '../mock/utils/utils.js';
 import { TripInfoView } from '../view/trip-info.js';
 import { TripPointPresenter } from './trip-point-presenter.js';
-import {SortValue} from '../mock/utils/consts.js';
+import {SortValue, UserAction, UpdateType, FilterType} from '../mock/utils/consts.js';
+import {filter} from '../mock/utils/filter.js';
+import {NewTripPointPresenter} from './new-trip-point-presenter.js';
 
-const TRIP_POINT_COUNT = 7;
 
 class TripPresenter {
   #tripMainContainer = null;
+  #tripControlsContainer = null;
   #tripEventContainer = null;
+  #tripPointsModel = null;
+  #filterModel = null;
 
-  #controlsNavigationComponent = new ControlsNavigationView();
-  #filtersFormComponent = new FilterMenuView();
+  #tripControlsNavigationComponent = new ControlsNavigationView();
   #addEventButtonComponent = new ButtonAddEventView();
-  #sortTripComponent = new SortMenuView();
   #eventsSectionComponent = new TripEventsSection();
   #tripListComponent = new TripListView();
-  #emptyListComponent = new EmptyListView();
+
   #tripPointPresenterMap = new Map();
+  #newTripPointPresenter = null;
   #currentSortValue = SortValue.DEFAULT;
+  #sortTripComponent = null;
+  #tripInfoComponent = null;
+  #emptyListComponent = null;
 
-  #eventTripPoints = [];
-  #sourcedTripPoints = [];
-
-  constructor(tripMainContainer, tripEventContainer) {
+  constructor(tripMainContainer, tripControlsContainer, tripEventContainer, tripPointsModel, filterModel) {
     this.#tripMainContainer = tripMainContainer;
+    this.#tripControlsContainer = tripControlsContainer;
     this.#tripEventContainer = tripEventContainer;
+    this.#tripPointsModel = tripPointsModel;
+    this.#filterModel = filterModel;
+    this.#newTripPointPresenter = new NewTripPointPresenter(this.#tripListComponent, this.#handleViewAction);
+    this.#tripPointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
-  init = (eventTripPoints) => {
-    this.#eventTripPoints = [...eventTripPoints];
+  get tripPoints() {
+    const filterType = this.#filterModel.filter;
+    const tripPoints = this.#tripPointsModel.tripPoints;
+    const filteredTripPoints = filter[filterType](tripPoints);
 
+    switch (this.#currentSortValue) {
+      case SortValue.TIME_UP:
+        return filteredTripPoints.sort(timeUp);
+      case SortValue.PRICE_UP:
+        return filteredTripPoints.sort(priceUp);
+    }
+
+    return filteredTripPoints.sort(dateDown);
+  }
+
+  init = () => {
     render(this.#tripEventContainer, this.#eventsSectionComponent, RenderPosition.BEFOREEND);
-    render(this.#tripMainContainer, this.#controlsNavigationComponent, RenderPosition.BEFOREEND);
-    render(this.#controlsNavigationComponent, this.#filtersFormComponent, RenderPosition.BEFOREEND);
+    render(this.#tripControlsContainer, this.#tripControlsNavigationComponent, RenderPosition.AFTERBEGIN);
     render(this.#eventsSectionComponent, this.#tripListComponent, RenderPosition.BEFOREEND);
     render(this.#tripMainContainer, this.#addEventButtonComponent, RenderPosition.BEFOREEND);
-
-    this.#sourcedTripPoints = [...eventTripPoints];
 
     this.#renderEvent();
   };
 
-  #renderTripPoint = (tripPointCard) => {
-    const tripPointPresenter = new TripPointPresenter(this.#tripListComponent, this.#handleTripPointChange, this.#handelModeChange);
-    tripPointPresenter.init(tripPointCard);
-    this.#tripPointPresenterMap.set(tripPointCard.id, tripPointPresenter);
+  createTripPoint = () => {
+    this.#currentSortValue = SortValue.DEFAULT;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newTripPointPresenter.init();
   };
 
-  #handleTripPointChange = (updatedTripPoint) => {
-    this.#eventTripPoints = updateItem(this.#eventTripPoints, updatedTripPoint);
-    this.#sourcedTripPoints = updateItem(this.#sourcedTripPoints, updatedTripPoint);
-    this.#tripPointPresenterMap.get(updatedTripPoint.id).init(updatedTripPoint);
+  #clearEvent = ({ resetSortValue = false } = {}) => {
+    this.#tripPointPresenterMap.forEach((presenter) => presenter.destroy());
+    this.#tripPointPresenterMap.clear();
+
+    remove(this.#sortTripComponent);
+    remove(this.#emptyListComponent);
+    remove(this.#tripInfoComponent);
+
+    if (resetSortValue) {
+      this.#currentSortValue = SortValue.DEFAULT;
+    }
   };
 
-  #handelModeChange = () => {
-    this.#tripPointPresenterMap.forEach((presenter) => presenter.resetView());
+  #renderEvent = () => {
+    const tripPoints = this.tripPoints;
+    if (tripPoints.length === 0 || !tripPoints) {
+      this.#renderNoPoints(this.#filterModel.filter);
+      return;
+    }
+
+    this.#renderSort();
+    this.#renderTripPoints(tripPoints);
+    this.#renderTripInfo();
   };
 
-  #renderNoPoints = () => {
+  #handleViewAction = (actionType, updateType, update) => {
+    // это тот callback который мы передадим во view
+    switch (actionType) {
+      case UserAction.UPDATE_TRIP_POINT:
+        this.#tripPointsModel.updatePoint(updateType, update);
+        break;
+      case UserAction.ADD_TRIP_POINT:
+        this.#tripPointsModel.addTripPoint(updateType, update);
+        break;
+      case UserAction.DELETE_TRIP_POINT:
+        this.#tripPointsModel.deleteTripPoint(updateType, update);
+        break;
+    }
+  };
+
+  #handleModelEvent = (updateType, data) => {
+    // это тот callback который мы передадим модели, точнее её обзерверу. Именно этот callback будет вызываться в модели когда там что-то случится с данными
+
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#tripPointPresenterMap.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearEvent();
+        this.#renderEvent();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearEvent();
+        this.#renderEvent();
+        break;
+    }
+  };
+
+  #renderNoPoints = (filterType) => {
+    this.#emptyListComponent = new EmptyListView(filterType);
     render(this.#tripEventContainer, this.#emptyListComponent, RenderPosition.BEFOREEND);
   };
 
-  #renderTripPoints = (from, to) => {
-    this.#eventTripPoints.slice(from, to).forEach((presenter) => this.#renderTripPoint(presenter));
+  #renderTripPoint = (tripPoint) => {
+    const tripPointPresenter = new TripPointPresenter(this.#tripListComponent, this.#handleViewAction, this.#handelModeChange);
+    tripPointPresenter.init(tripPoint);
+    this.#tripPointPresenterMap.set(tripPoint.id, tripPointPresenter);
+  };
+
+  #renderTripPoints = (tripPoints) => {
+    tripPoints.forEach((tripPoint) => this.#renderTripPoint(tripPoint));
   };
 
   #renderSort = () => {
-    render(this.#eventsSectionComponent, this.#sortTripComponent, RenderPosition.AFTERBEGIN);
+    this.#sortTripComponent = new SortMenuView(this.#currentSortValue);
     this.#sortTripComponent.setSortValueChangeHandler(this.#handleSortValueChange);
+    render(this.#eventsSectionComponent, this.#sortTripComponent, RenderPosition.AFTERBEGIN);
+  };
+
+  #handelModeChange = () => {
+    this.#newTripPointPresenter.destroy();
+    this.#tripPointPresenterMap.forEach((presenter) => presenter.resetView());
   };
 
   #handleSortValueChange = (sortValue) => {
@@ -83,50 +162,15 @@ class TripPresenter {
       return;
     }
 
-    this.#sortTripPoints(sortValue);
-    this.#clearPointsList();
-    this.#renderPointsList();
-  };
-
-  #sortTripPoints = (sortValue) => {
-    switch (sortValue) {
-      case SortValue.TIME_UP:
-        this.#eventTripPoints.sort(timeUp);
-        break;
-      case SortValue.PRICE_UP:
-        this.#eventTripPoints.sort(priceUp);
-        break;
-      default:
-        this.#eventTripPoints = [...this.#sourcedTripPoints];
-    }
-
     this.#currentSortValue = sortValue;
-  };
-
-
-  #renderPointsList = () => {
-    this.#renderTripPoints(0, TRIP_POINT_COUNT);
-  };
-
-  #clearPointsList = () => {
-    this.#tripPointPresenterMap.forEach((presenter) => presenter.destroy());
-    this.#tripPointPresenterMap.clear();
+    this.#clearEvent();
+    this.#renderEvent();
   };
 
   #renderTripInfo = () => {
-    const tripInfoComponent = new TripInfoView(this.#eventTripPoints);
-    render(this.#tripMainContainer, tripInfoComponent, RenderPosition.AFTERBEGIN);
-  };
-
-  #renderEvent = () => {
-    if (this.#eventTripPoints.length === 0 || !this.#eventTripPoints) {
-      this.#renderNoPoints();
-      return;
-    }
-
-    this.#renderSort();
-    this.#renderPointsList();
-    this.#renderTripInfo();
+    const tripPoints = this.tripPoints;
+    this.#tripInfoComponent = new TripInfoView(tripPoints);
+    render(this.#tripMainContainer, this.#tripInfoComponent, RenderPosition.AFTERBEGIN);
   };
 }
 

@@ -24,9 +24,6 @@ const generateRandomMinutes = () =>
 const genRandomTime = () =>
   `${generateRandomHours()}:${generateRandomMinutes()}`;
 
-const calcTimeDuration = (tripPoint) => {
-  const {endDate, startDate} = tripPoint;
-  tripPoint.eventDuration = dayjs(endDate).diff(dayjs(startDate), 'm');
-};
+const calcTimeDuration = (endDate, startDate) => dayjs(endDate).diff(dayjs(startDate), 'm');
 
 export { calcTimeDuration, generateRandomHours, genRandomTime };

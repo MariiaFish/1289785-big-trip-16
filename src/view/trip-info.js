@@ -16,11 +16,11 @@ const createLongTripInfoTitle = (tripPoints) => {
 const createTripInfoDatesTemplate = (tripPoints) => {
 
   const {endDate} = getLastArrayElement(tripPoints);
-  const { eventDate } = getFirstArrayElement(tripPoints);
+  const { startDate } = getFirstArrayElement(tripPoints);
 
-  const startTripDate = convertDateToFormat(eventDate, EVENT_DATE_FORMAT);
+  const startTripDate = convertDateToFormat(startDate, EVENT_DATE_FORMAT);
 
-  const endTripDate = isSameMonth(eventDate, endDate)
+  const endTripDate = isSameMonth(startDate, endDate)
     ? convertDateToFormat(endDate, ONLY_NUMBER_DATE_FORMAT)
     : convertDateToFormat(endDate, EVENT_DATE_FORMAT);
 
@@ -45,15 +45,14 @@ const createTripInfoTemplate = (tripPoints) => {
 };
 
 class TripInfoView extends AbstractView {
-  #tripPoints = null;
 
   constructor (tripPoints) {
     super();
-    this.#tripPoints = tripPoints;
+    this._data = tripPoints;
   }
 
   get template () {
-    return this.#tripPoints === 0 || !this.#tripPoints ? '' : createTripInfoTemplate(this.#tripPoints);
+    return this._data === 0 || !this._data ? '' : createTripInfoTemplate(this._data);
   }
 }
 

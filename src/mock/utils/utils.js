@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {FALSE, TRUE} from './consts.js';
 
 const getRandomInteger = (a = 0, b = 1) => {
@@ -37,9 +38,13 @@ const getRandomArrayLength = (array, length) => {
   return newArray;
 };
 
-const timeUp = (a, b) => b.eventTime.eventDuration - a.eventTime.eventDuration;
+const timeUp = (a, b) => b.eventDuration - a.eventDuration;
 
 const priceUp = (a, b) => b.price - a.price;
+const dateDown = (a, b) => a.eventDate - b.eventDate;
+
+const isFuturePoint = (startDate) => dayjs().isSame(startDate) || dayjs().isBefore(startDate);
+const isPastPoint = (endDate) => dayjs().isAfter(endDate);
 
 export {
   getRandomArrayElement,
@@ -53,5 +58,8 @@ export {
   getLastArrayElement,
   getFirstArrayElement,
   timeUp,
-  priceUp
+  priceUp,
+  dateDown,
+  isFuturePoint,
+  isPastPoint,
 };
