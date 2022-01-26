@@ -7,7 +7,7 @@ import { SmartView } from './smart-view.js';
 
 const createOfferElements = (offers) => (
   `<ul class="event__selected-offers ">
-                  ${offers.map(({offerTitle, offerPrice}) => `<li class="event__offer">
+                  ${offers.map(([offerTitle, offerPrice]) => `<li class="event__offer">
                     <span class="event__offer-title">${offerTitle}</span>
                     &plus;&euro;&nbsp;
                     <span class="event__offer-price">${offerPrice}</span>
@@ -15,19 +15,19 @@ const createOfferElements = (offers) => (
                 </ul>`
 );
 
-const createNewPointTemplate = (tripPointCard) => {
-  const { eventDate, eventType, offers, eventTitle, endDate, startDate, eventDuration, price, isFavorite} = tripPointCard;
+const createNewPointTemplate = (tripPoint) => {
+  const { eventType, offers, eventDestination, endDate, startDate, eventDuration, price, isFavorite} = tripPoint;
 
   const favoriteClass = isFavorite === true ? 'event__favorite-btn--active' : '';
   const offersList = offers ? createOfferElements(offers) : '';
 
   return `<li class="trip-events__item">
               <div class="event">
-                <time class="event__date" datetime="${convertDateToFormat(eventDate, FULL_DATE_FORMAT)}">${convertDateToFormat(eventDate, EVENT_DATE_FORMAT)}</time>
+                <time class="event__date" datetime="${convertDateToFormat(startDate, FULL_DATE_FORMAT)}">${convertDateToFormat(startDate, EVENT_DATE_FORMAT)}</time>
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${getLowerCaseEventType(eventType)}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${eventTitle}</h3>
+                <h3 class="event__title">${eventType} ${eventDestination}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${convertDateToFormat(startDate, DATE_TIME)}">${convertDateToFormat(startDate, TIME_FORMAT)}</time>

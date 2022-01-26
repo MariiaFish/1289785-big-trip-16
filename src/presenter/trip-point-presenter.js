@@ -1,6 +1,7 @@
 import { TripPointView } from '../view/trip-point-view.js';
 import { EditPointFormView } from '../view/edit-trip-point-form-view.js';
 import { RenderPosition, render, replace, remove } from '../mock/utils/render.js';
+import {UpdateType, UserAction} from '../mock/utils/consts.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -91,12 +92,13 @@ class TripPointPresenter {
     this.#replacePointToEditForm();
   };
 
-  #handlerDeleteClic = () => {
+  #handlerDeleteClic = (tripPoint) => {
+    this.#changeData(UserAction.DELETE_TRIP_POINT, UpdateType.MINOR, tripPoint);
     this.#replaceEditFormToPoint();
-    remove(this.#tripPointComponent);
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (tripPoint, updateType) => {
+    this.#changeData(UserAction.UPDATE_TRIP_POINT, updateType, tripPoint);
     this.#replaceEditFormToPoint();
   };
 
@@ -106,7 +108,7 @@ class TripPointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({...this.#tripPoint, isFavorite: !this.#tripPoint.isFavorite,});
+    this.#changeData(UserAction.UPDATE_TRIP_POINT, UpdateType.PATCH, {...this.#tripPoint, isFavorite: !this.#tripPoint.isFavorite});
   };
 }
 
