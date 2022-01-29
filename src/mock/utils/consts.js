@@ -86,6 +86,12 @@ const DateType = {
   END_DATA: 'endDate',
 };
 
+const MenuItem = {
+  ADD_NEW_POINT: 'ADD_NEW_POINT',
+  TABLE: 'TABLE',
+  STATISTICS: 'STATISTICS',
+};
+
 export {
   FALSE,
   TRUE,
@@ -102,7 +108,7 @@ export {
   MIN_PRICE_VALUE,
   MAX_PRICE_VALUE,
   DESTINATION_DISCRIPTION,
-  // OFFER_TYPES,
+  MenuItem,
   EVENT_DESTINATION_POINTS,
   EVENT_TYPES,
   // OFFER_TITLES,

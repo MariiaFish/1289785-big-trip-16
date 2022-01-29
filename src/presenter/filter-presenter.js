@@ -49,6 +49,17 @@ class FilterPresenter {
     remove(prevFilterComponent);
   };
 
+  destroy = () => {
+    remove(this.#filterComponent);
+    this.#filterComponent = null;
+
+    // this.#tasksModel.removeObserver(this.#handleModelEvent);
+    // this.#filterModel.removeObserver(this.#handleModelEvent);
+
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+  }
+
+
   #handleFilterTypeChange = (filterType) => {
     if (this.#filterModel.filter === filterType) {
       return;

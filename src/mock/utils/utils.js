@@ -42,9 +42,13 @@ const timeUp = (a, b) => b.eventDuration - a.eventDuration;
 
 const priceUp = (a, b) => b.price - a.price;
 const dateDown = (a, b) => a.eventDate - b.eventDate;
+const upToDown = (a, b) => b[1] - a[1];
 
 const isFuturePoint = (startDate) => dayjs().isSame(startDate) || dayjs().isBefore(startDate);
 const isPastPoint = (endDate) => dayjs().isAfter(endDate);
+const checkEndDate = (endDate, startDate) => dayjs(endDate).isAfter(startDate);
+
+const makeItemsUniq = (items) => [...new Set(items)];
 
 export {
   getRandomArrayElement,
@@ -62,4 +66,7 @@ export {
   dateDown,
   isFuturePoint,
   isPastPoint,
+  checkEndDate,
+  upToDown,
+  makeItemsUniq,
 };

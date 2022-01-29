@@ -103,8 +103,8 @@ const createPhotosContainerTemplate = (photos) => (
                     </div>`
 );
 
-const createEditPointFormTemplate = (tripPoint) => {
-  const { eventDestination, eventType, endDate, startDate, offers, destination: {title, photos}, price} = tripPoint;
+const createEditPointFormTemplate = (tripPointCard) => {
+  const { eventDestination, eventType, endDate, startDate, offers, destination: {title, photos}, price} = tripPointCard;
 
   const isEndDateCorrect = checkEndDate(endDate, startDate);
 
@@ -130,8 +130,7 @@ const createEditPointFormTemplate = (tripPoint) => {
                   ${priceTemplate}
 
                   <button class="event__save-btn  btn  btn--blue" type="submit" ${isEndDateCorrect ? '' : 'disabled'}>Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
-                  <button class="event__rollup-btn" type="button">
+                  <button class="event__reset-btn" type="reset">Cancel</button>
                     <span class="visually-hidden">Open event</span>
                   </button>
                 </header>
@@ -148,32 +147,31 @@ const createEditPointFormTemplate = (tripPoint) => {
             </li>`;
 };
 
-class EditPointFormView extends SmartView {
+class NewPointFormView extends SmartView {
   #datepickerStart = null;
   #datepickerEnd = null;
   #updateType = UpdateType.PATCH;
 
-  constructor(tripPoint = BLANK_TASK) {
+  constructor(tripPointCard = BLANK_TASK) {
     super();
-    this._data = EditPointFormView.parsePointToData(tripPoint);
+    this._data = NewPointFormView.parsePointToData(tripPointCard);
     this.#setInnerHandlers();
-    this.#setDatapickers(FLATPICKER_SETTINGS);
+    this.#setDatapickers();
   }
 
   get template () {
     return createEditPointFormTemplate(this._data);
   }
 
-  reset = (tripPoint) => {
-    this.updateData(EditPointFormView.parsePointToData(tripPoint));
+  reset = (tripPointCard) => {
+    this.updateData(NewPointFormView.parsePointToData(tripPointCard));
   }
 
   restoreHandlers = () => {
     this.#setInnerHandlers();
     this.setEditFormSubmitHandler(this._callback.formSubmit);
-    this.setDeleteClickHandler(this._callback.deleteClick);
-    this.setEditClickHandler(this._callback.editClick);
-    this.#setDatapickers(FLATPICKER_SETTINGS);
+    this.setCancelClickHandler(this._callback.cancelClick);
+    this.#setDatapickers();
   }
 
   removeElement = () => {
@@ -195,41 +193,41 @@ class EditPointFormView extends SmartView {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
   }
 
-  setEditClickHandler = (callback) => {
-    this._callback.editClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  // setEditClickHandler = (callback) => {
+  //   this._callback.editClick = callback;
+  //   this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  // }
+
+  setCancelClickHandler = (callback) => {
+    this._callback.cancelClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelClickHandler);
   }
 
-  setDeleteClickHandler = (callback) => {
-    this._callback.deleteClick = callback;
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
-  }
-
-  #setDatepickerStart = (settings) => {
+  setDatepickerStart = () => {
     this.#datepickerStart = flatpickr(
       this.element.querySelector('#event-start-time-1'),
       {
-        ...settings,
+        ...FLATPICKER_SETTINGS,
         defaultDate: this._data.startDate.toDate(),
         onClose: this.#handleStartDate,
       }
     );
   }
 
-  #setDatapickerEnd = (settings) => {
+  setDatapickerEnd = () => {
     this.#datepickerEnd = flatpickr(
       this.element.querySelector('#event-end-time-1'),
       {
-        ...settings,
+        ...FLATPICKER_SETTINGS,
         defaultDate: this._data.endDate.toDate(),
         onClose: this.#handleEndDate,
       }
     );
   }
 
-  #setDatapickers = (settings) => {
-    this.#setDatepickerStart(settings);
-    this.#setDatapickerEnd(settings);
+  #setDatapickers = () => {
+    this.setDatepickerStart();
+    this.setDatapickerEnd();
   }
 
   #setInnerHandlers = () => {
@@ -256,26 +254,20 @@ class EditPointFormView extends SmartView {
   }
 
   #eventPriceChangeHandler = (evt) => {
-    evt.preventDefault();
     this.updateData({
       price: Number(evt.target.value),
     });
     this.#updateType = UpdateType.MAJOR;
   }
 
-  #deleteClickHandler = (evt) => {
+  #cancelClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.deleteClick(EditPointFormView.parseDataToPoint(this._data));
-  }
-
-  #editClickHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.editClick();
+    this._callback.cancelClick(NewPointFormView.parseDataToPoint(this._data));
   }
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(EditPointFormView.parseDataToPoint(this._data), this.#updateType);
+    this._callback.formSubmit(NewPointFormView.parseDataToPoint(this._data), this.#updateType);
   }
 
   #handleStartDate = (userDate) => {
@@ -315,4 +307,4 @@ class EditPointFormView extends SmartView {
   }
 }
 
-export { EditPointFormView };
+export { NewPointFormView };
