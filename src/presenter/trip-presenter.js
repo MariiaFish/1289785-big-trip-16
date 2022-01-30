@@ -1,7 +1,5 @@
 import { TripListView } from '../view/trip-list-view.js';
-import { ControlsNavigationView } from '../view/trip-controls-navigation-view.js';
 import { TripEventsSection } from '../view/trip-events-section-view.js';
-import { ButtonAddEventView } from '../view/add-event-button.js';
 import { EmptyListView } from '../view/empty-list-view.js';
 import { SortMenuView } from '../view/trip-sort-view.js';
 import { RenderPosition, render, remove } from '../mock/utils/render.js';
@@ -15,16 +13,12 @@ import {NewTripPointPresenter} from './new-trip-point-presenter.js';
 
 class TripPresenter {
   #tripMainContainer = null;
-  #tripControlsContainer = null;
   #tripEventContainer = null;
   #tripPointsModel = null;
   #filterModel = null;
 
-  #tripControlsNavigationComponent = new ControlsNavigationView();
-  #addEventButtonComponent = new ButtonAddEventView();
   #eventsSectionComponent = new TripEventsSection();
   #tripListComponent = new TripListView();
-
   #tripPointPresenterMap = new Map();
   #newTripPointPresenter = null;
   #currentSortValue = SortValue.DEFAULT;
@@ -32,15 +26,14 @@ class TripPresenter {
   #tripInfoComponent = null;
   #emptyListComponent = null;
 
-  constructor(tripMainContainer, tripControlsContainer, tripEventContainer, tripPointsModel, filterModel) {
+  constructor(tripMainContainer, tripEventContainer, tripPointsModel, filterModel) {
     this.#tripMainContainer = tripMainContainer;
-    this.#tripControlsContainer = tripControlsContainer;
     this.#tripEventContainer = tripEventContainer;
     this.#tripPointsModel = tripPointsModel;
     this.#filterModel = filterModel;
     this.#newTripPointPresenter = new NewTripPointPresenter(this.#tripListComponent, this.#handleViewAction);
-    this.#tripPointsModel.addObserver(this.#handleModelEvent);
-    this.#filterModel.addObserver(this.#handleModelEvent);
+    // this.#tripPointsModel.addObserver(this.#handleModelEvent);
+    // this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get tripPoints() {
@@ -60,17 +53,28 @@ class TripPresenter {
 
   init = () => {
     render(this.#tripEventContainer, this.#eventsSectionComponent, RenderPosition.BEFOREEND);
-    render(this.#tripControlsContainer, this.#tripControlsNavigationComponent, RenderPosition.AFTERBEGIN);
     render(this.#eventsSectionComponent, this.#tripListComponent, RenderPosition.BEFOREEND);
-    render(this.#tripMainContainer, this.#addEventButtonComponent, RenderPosition.BEFOREEND);
+
+    this.#tripPointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
 
     this.#renderEvent();
   };
 
-  createTripPoint = () => {
-    this.#currentSortValue = SortValue.DEFAULT;
+  destroy = () => {
+    this.#clearEvent({ resetRenderedTaskCount: true});
+
+    remove(this.#tripListComponent);
+    remove(this.#eventsSectionComponent);
+
+    this.#tripPointsModel.removeObserver(this.#handleModelEvent);
+    this.#filterModel.removeObserver(this.#handleModelEvent);
+  }
+
+  createTripPoint = (callback) => {
+    // this.#currentSortValue = SortValue.DEFAULT;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#newTripPointPresenter.init();
+    this.#newTripPointPresenter.init(callback);
   };
 
   #clearEvent = ({ resetSortValue = false } = {}) => {

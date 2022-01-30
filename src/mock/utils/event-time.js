@@ -26,4 +26,5 @@ const genRandomTime = () =>
 
 const calcTimeDuration = (endDate, startDate) => dayjs(endDate).diff(dayjs(startDate), 'm');
 
+
 export { calcTimeDuration, generateRandomHours, genRandomTime };
