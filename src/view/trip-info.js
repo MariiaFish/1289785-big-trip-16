@@ -4,19 +4,18 @@ import { EVENT_DATE_FORMAT, ONLY_NUMBER_DATE_FORMAT } from '../mock/utils/consts
 import {calcTripCost} from '../mock/utils/total-price.js';
 import { AbstractView } from './abstract-view.js';
 
-const createShortTripInfoTitle = (tripPoints) => tripPoints.map(({eventDestination}) => eventDestination).join('  &mdash; ');
+const createShortTripInfoTitle = (tripPoints) => tripPoints.map(({destination: {name}}) => name).join('  &mdash; ');
 
 const createLongTripInfoTitle = (tripPoints) => {
   const firstTripPoint = getFirstArrayElement(tripPoints);
   const lastTripPoint = getLastArrayElement(tripPoints);
-  return `${firstTripPoint.eventDestination}  &mdash; ... &mdash; ${lastTripPoint.eventDestination}`;
+  return `${firstTripPoint.destination.name}  &mdash; ... &mdash; ${lastTripPoint.destination.name}`;
 };
 
 
 const createTripInfoDatesTemplate = (tripPoints) => {
-
   const {endDate} = getLastArrayElement(tripPoints);
-  const { startDate } = getFirstArrayElement(tripPoints);
+  const {startDate} = getFirstArrayElement(tripPoints);
 
   const startTripDate = convertDateToFormat(startDate, EVENT_DATE_FORMAT);
 

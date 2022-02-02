@@ -1,49 +1,127 @@
+import dayjs from 'dayjs';
 import { AbstractObservable } from '../mock/utils/abstract-observable';
 import { dateDown } from '../mock/utils/utils.js';
+import {UpdateType} from '../mock/utils/consts.js';
+import { calcTimeDuration} from '../mock/utils/event-time.js';
 
 
 class TripPointsModel extends AbstractObservable {
-  #tripPoints = [];
+  #apiService = null;
+  #points = [];
+  #offers = [];
+  #destinations = [];
 
-  set tripPoints(tripPoints) {
-    this.#tripPoints = [...tripPoints];
+  constructor(apiService) {
+    super();
+    this.#apiService = apiService;
   }
 
-  get tripPoints() {
-    return this.#tripPoints;
+  init = async () => {
+    try {
+      const points = await this.#apiService.points;
+      const offers = await this.#apiService.offers;
+      const destinations = await this.#apiService.destinations;
+      this.#destinations = destinations;
+      this.#offers = offers;
+      this.#points = points.map(this.#adaptToClient);
+      // console.log(this.#points);
+      // console.log(this.#destinations);
+      // console.log(this.#offers);
+    } catch (err) {
+      this.#points = [];
+    }
+
+    this._notify(UpdateType.INIT);
+  };
+
+  set points(points) {
+    this.#points = [...points];
   }
 
-  updatePoint = (updateType, update) => {
-    const index = this.#tripPoints.findIndex((tripPoint) => tripPoint.id === update.id);
+  get points() {
+    return this.#points;
+  }
+
+  set offers(offers) {
+    this.#offers = [...offers];
+  }
+
+  get offers() {
+    return this.#offers;
+  }
+
+  set destinations(destinations) {
+    this.#destinations = [...destinations];
+  }
+
+  get destinations() {
+    return this.#destinations;
+  }
+
+  updatePoint = async (updateType, update) => {
+    const index = this.#points.findIndex((points) => points.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting task');
     }
 
-    this.#tripPoints = [...this.#tripPoints.slice(0, index), update, ...this.#tripPoints.slice(index + 1)].sort(dateDown);
+    try {
+      const response = await this.#apiService.updatePoint(update);
+      const updatedPoint = this.#adaptToClient(response);
+      this.#points = [
+        ...this.#points.slice(0, index),
+        updatedPoint,
+        ...this.#points.slice(index + 1),
+      ].sort(dateDown);
+
+      this._notify(updateType, update);
+    } catch (err) {
+      throw new Error('Can\'t update point');
+    }
+  };
+
+  addTripPoint = (updateType, update) => {
+    this.#points = [update, ...this.#points];
 
     this._notify(updateType, update);
   };
 
-  addTripPoint = (updateType, update) => {
-    this.#tripPoints = [update, ...this.#tripPoints];
-
-    this._notify(updateType, update);
-  }
-
   deleteTripPoint = (updateType, update) => {
-    const index = this.#tripPoints.findIndex((tripPoint) => tripPoint.id === update.id);
+    const index = this.#points.findIndex((points) => points.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t delete unexisting task');
     }
 
-    this.#tripPoints = [...this.#tripPoints.slice(0, index), ...this.#tripPoints.slice(index + 1)];
+    this.#points = [
+      ...this.#points.slice(0, index),
+      ...this.#points.slice(index + 1),
+    ];
 
     this._notify(updateType);
-  }
+  };
 
+  #adaptToClient = (point) => {
+    const adaptedPoint = {
+      ...point,
+      destination: point['destination'],
+      endDate: dayjs(point['date_to']),
+      startDate: dayjs(point['date_from']),
+      eventDuration: calcTimeDuration(dayjs(point['date_to']),dayjs(point['date_from'])),
+      eventType: point['type'],
+      isFavorite: point['is_favorite'],
+      offers: point['offers'],
+      price: point['base_price'],
+    };
 
+    // Ненужные ключи мы удаляем
+    delete adaptedPoint['is_favorite'];
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+
+    return adaptedPoint;
+  };
 }
 
 export {TripPointsModel};

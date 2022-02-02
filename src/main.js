@@ -1,5 +1,5 @@
-import {generateTripPoint} from './mock/trip-point-data.js';
-import { genArray } from './mock/utils/utils.js';
+// import {generateTripPoint} from './mock/trip-point-data.js';
+// import { genArray } from './mock/utils/utils.js';
 import {MenuItem} from './mock/utils/consts.js';
 import { TripPresenter } from './presenter/trip-presenter.js';
 import { TripPointsModel } from './model/trip-points-model.js';
@@ -9,6 +9,7 @@ import { FilterPresenter } from './presenter/filter-presenter.js';
 import { StatisticsView } from './view/stat-view.js';
 import { MenuNavigationView } from './view/menu-navigation-view.js';
 import { ButtonAddEventView } from './view/add-new-event-button.js';
+import { ApiService } from './api-service.js';
 
 const bodyElement = document.querySelector('.page-body');
 const tripMainContainer = bodyElement.querySelector('.trip-main');
@@ -17,20 +18,22 @@ const pageBodyMainContainer = bodyElement.querySelector('.page-main');
 const tripEventContainer = pageBodyMainContainer.querySelector('.page-body__container');
 
 
-const TRIP_POINT_COUNT = 7;
-const tripPoints = genArray(TRIP_POINT_COUNT, generateTripPoint);
+// const TRIP_POINT_COUNT = 7;
+const AUTHORIZATION = 'Basic ribaRibnaai4746';
+const END_POINT = 'https://16.ecmascript.pages.academy/big-trip';
 
-const tripPointsModel = new TripPointsModel();
-tripPointsModel.tripPoints = tripPoints;
+// const tripPoints = genArray(TRIP_POINT_COUNT, generateTripPoint);
+
+// console.log(tripPoints);
+
+const tripPointsModel = new TripPointsModel(new ApiService(END_POINT, AUTHORIZATION));
+// tripPointsModel.tripPoints = tripPoints;
 const filterModel = new FilterModel();
 const newEventButton = new ButtonAddEventView();
 
 const menuNavigation = new MenuNavigationView();
 const tripPresenter = new TripPresenter(tripMainContainer, tripEventContainer, tripPointsModel, filterModel);
 const filterPresenter = new FilterPresenter(siteMenuContainer, filterModel);
-
-render(siteMenuContainer, menuNavigation, RenderPosition.AFTERBEGIN);
-render(tripMainContainer, newEventButton, RenderPosition.BEFOREEND);
 
 
 const handleNewEventFormClose = () => {
@@ -62,6 +65,7 @@ const handleMenuNavigationClick = (menuItem) => {
       // Показать фильтры
       filterPresenter.init();
       // Показать eventbox
+      tripPresenter.destroy();
       tripPresenter.init();
       // Скрыть статистику
       remove(statisticsComponent);
@@ -73,16 +77,20 @@ const handleMenuNavigationClick = (menuItem) => {
       // Скрыть eventbox
       tripPresenter.destroy();
       // Показать статистику
-      statisticsComponent = new StatisticsView(tripPointsModel.tripPoints);
+      statisticsComponent = new StatisticsView(tripPointsModel.points);
       render(pageBodyMainContainer, statisticsComponent, RenderPosition.BEFOREEND);
       break;
   }
 };
 
-menuNavigation.setMenuNavigationClickHandler(handleMenuNavigationClick);
-newEventButton.setNewEventClickHandler(handleMenuNavigationClick);
-
 tripPresenter.init();
 filterPresenter.init();
 
 
+tripPointsModel.init().finally(() => {
+  render(siteMenuContainer, menuNavigation, RenderPosition.AFTERBEGIN);
+  render(tripMainContainer, newEventButton, RenderPosition.BEFOREEND);
+
+  menuNavigation.setMenuNavigationClickHandler(handleMenuNavigationClick);
+  newEventButton.setNewEventClickHandler(handleMenuNavigationClick);
+});

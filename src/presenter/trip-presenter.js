@@ -8,6 +8,7 @@ import { TripInfoView } from '../view/trip-info.js';
 import { TripPointPresenter } from './trip-point-presenter.js';
 import {SortValue, UserAction, UpdateType, FilterType} from '../mock/utils/consts.js';
 import {filter} from '../mock/utils/filter.js';
+import { LoadingView } from '../view/loading-view.js';
 import {NewTripPointPresenter} from './new-trip-point-presenter.js';
 
 
@@ -16,15 +17,19 @@ class TripPresenter {
   #tripEventContainer = null;
   #tripPointsModel = null;
   #filterModel = null;
+  #sortTripComponent = null;
+  #tripInfoComponent = null;
+  #emptyListComponent = null;
+  #newTripPointPresenter = null;
 
   #eventsSectionComponent = new TripEventsSection();
   #tripListComponent = new TripListView();
   #tripPointPresenterMap = new Map();
-  #newTripPointPresenter = null;
+  #offersMap = new Map();
+  #destinationsMap = new Map();
   #currentSortValue = SortValue.DEFAULT;
-  #sortTripComponent = null;
-  #tripInfoComponent = null;
-  #emptyListComponent = null;
+  #loadingComponent = new LoadingView();
+  #isLoading = true;
 
   constructor(tripMainContainer, tripEventContainer, tripPointsModel, filterModel) {
     this.#tripMainContainer = tripMainContainer;
@@ -32,13 +37,11 @@ class TripPresenter {
     this.#tripPointsModel = tripPointsModel;
     this.#filterModel = filterModel;
     this.#newTripPointPresenter = new NewTripPointPresenter(this.#tripListComponent, this.#handleViewAction);
-    // this.#tripPointsModel.addObserver(this.#handleModelEvent);
-    // this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get tripPoints() {
     const filterType = this.#filterModel.filter;
-    const tripPoints = this.#tripPointsModel.tripPoints;
+    const tripPoints = this.#tripPointsModel.points;
     const filteredTripPoints = filter[filterType](tripPoints);
 
     switch (this.#currentSortValue) {
@@ -49,6 +52,14 @@ class TripPresenter {
     }
 
     return filteredTripPoints.sort(dateDown);
+  }
+
+  get offers() {
+    return this.#tripPointsModel.offers;
+  }
+
+  get destinations() {
+    return this.#tripPointsModel.destinations;
   }
 
   init = () => {
@@ -62,17 +73,16 @@ class TripPresenter {
   };
 
   destroy = () => {
-    this.#clearEvent({ resetRenderedTaskCount: true});
+    this.#clearEvent({ resetRenderedTaskCount: true });
 
     remove(this.#tripListComponent);
     remove(this.#eventsSectionComponent);
 
     this.#tripPointsModel.removeObserver(this.#handleModelEvent);
     this.#filterModel.removeObserver(this.#handleModelEvent);
-  }
+  };
 
   createTripPoint = (callback) => {
-    // this.#currentSortValue = SortValue.DEFAULT;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newTripPointPresenter.init(callback);
   };
@@ -84,6 +94,7 @@ class TripPresenter {
     remove(this.#sortTripComponent);
     remove(this.#emptyListComponent);
     remove(this.#tripInfoComponent);
+    remove(this.#loadingComponent);
 
     if (resetSortValue) {
       this.#currentSortValue = SortValue.DEFAULT;
@@ -91,19 +102,26 @@ class TripPresenter {
   };
 
   #renderEvent = () => {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     const tripPoints = this.tripPoints;
+    const offers = this.offers;
+    const destinations = this.destinations;
+
     if (tripPoints.length === 0 || !tripPoints) {
       this.#renderNoPoints(this.#filterModel.filter);
       return;
     }
 
     this.#renderSort();
-    this.#renderTripPoints(tripPoints);
+    this.#renderTripPoints(tripPoints, offers, destinations);
     this.#renderTripInfo();
   };
 
   #handleViewAction = (actionType, updateType, update) => {
-    // это тот callback который мы передадим во view
     switch (actionType) {
       case UserAction.UPDATE_TRIP_POINT:
         this.#tripPointsModel.updatePoint(updateType, update);
@@ -118,8 +136,6 @@ class TripPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-    // это тот callback который мы передадим модели, точнее её обзерверу. Именно этот callback будет вызываться в модели когда там что-то случится с данными
-
     switch (updateType) {
       case UpdateType.PATCH:
         this.#tripPointPresenterMap.get(data.id).init(data);
@@ -132,22 +148,35 @@ class TripPresenter {
         this.#clearEvent();
         this.#renderEvent();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderEvent();
+        break;
     }
+  };
+
+  #renderLoading = () => {
+    render(this.#tripEventContainer, this.#loadingComponent, RenderPosition.AFTERBEGIN);
   };
 
   #renderNoPoints = (filterType) => {
     this.#emptyListComponent = new EmptyListView(filterType);
-    render(this.#tripEventContainer, this.#emptyListComponent, RenderPosition.BEFOREEND);
+    render(
+      this.#tripEventContainer,
+      this.#emptyListComponent,
+      RenderPosition.BEFOREEND
+    );
   };
 
-  #renderTripPoint = (tripPoint) => {
+  #renderTripPoint = (tripPoint, offers, destinations) => {
     const tripPointPresenter = new TripPointPresenter(this.#tripListComponent, this.#handleViewAction, this.#handelModeChange);
-    tripPointPresenter.init(tripPoint);
+    tripPointPresenter.init(tripPoint, offers, destinations);
     this.#tripPointPresenterMap.set(tripPoint.id, tripPointPresenter);
   };
 
-  #renderTripPoints = (tripPoints) => {
-    tripPoints.forEach((tripPoint) => this.#renderTripPoint(tripPoint));
+  #renderTripPoints = (tripPoints, offers, destinations) => {
+    tripPoints.forEach((tripPoint) => this.#renderTripPoint(tripPoint, offers, destinations));
   };
 
   #renderSort = () => {
@@ -165,6 +194,7 @@ class TripPresenter {
     if (this.#currentSortValue === sortValue) {
       return;
     }
+
 
     this.#currentSortValue = sortValue;
     this.#clearEvent();

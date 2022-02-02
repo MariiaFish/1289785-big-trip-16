@@ -33,14 +33,14 @@ const EVENT_TYPES = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-i
 const EVENT_DESTINATION_POINTS = ['Amsterdam', 'Geneva', 'Chamonix'];
 
 const OFFERS = {
-  taxi: [['order-uber', 30], ['order-uber-priority', 50], ['add-luggage', 10], ['switch-to-comfort-class', 15]],
-  bus: [['add-luggage', 10], ['choose-seats', 10]],
-  train: [['add-luggage', 10], ['choose-seats', 10], ['add-meal', 24]],
-  ship: [['add-luggage', 10], ['choose-seats', 10], ['add-meal', 24]],
-  drive: [['rent-car', 100], ['rent-priority-car', 300], ['rent-lux-car', 500]],
-  flight: [['add-luggage', 10], ['choose-seats', 10], ['add-meal', 24]],
-  'check-in': [['add-breakfast', 40], ['add-special-tv-channels', 5], ['add-dinner', 40], ['add-laundry-services', 30], ['add-parking-place', 10]],
-  restaurant: [['choose-table', 5], ['add-parking-place', 5]],
+  taxi: [{title: 'order-uber', price: 30, isChecked: true }, {title: 'order-uber-priority', price: 50, isChecked: true }, {title: 'add-luggage', price: 10, isChecked: true }, {title: 'switch-to-comfort-class', price: 15, isChecked: true }],
+  bus: [{title: 'add-luggage', price: 10, isChecked: true }, {title: 'choose-seats', price: 10, isChecked: true }],
+  train: [{title: 'add-luggage', price: 10, isChecked: true }, {title: 'choose-seats', price: 10, isChecked: true }, {title: 'add-meal', price: 24, isChecked: true }],
+  ship: [{title: 'add-luggage', price: 10, isChecked: true }, {title: 'choose-seats', price: 10, isChecked: true }, {title: 'add-meal', price: 24, isChecked: true }],
+  drive: [{title: 'rent-car', price: 100, isChecked: true }, {title: 'rent-priority-car', price: 300, isChecked: true }, {title: 'rent-lux-car', price: 500, isChecked: true }],
+  flight: [{title: 'add-luggage', price: 10, isChecked: true }, {title: 'choose-seats', price: 10, isChecked: true }, {title: 'add-meal', price: 24, isChecked: true }],
+  'check-in': [{title: 'add-breakfast', price: 40, isChecked: true }, {title: 'add-special-tv-channels', price: 5, isChecked: true }, {title: 'add-dinner', price: 40, isChecked: true},  {title: 'add-laundry-services', price: 30, isChecked: true }, {title: 'add-parking-place', price: 10, isChecked: true }],
+  restaurant: [{title: 'choose-table', price: 5, isChecked: true }, {title: 'add-parking-place', price: 5, isChecked: true }],
 };
 
 const DESTINATION_DISCRIPTION = ['Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'Cras aliquet varius magna, non porta ligula feugiat eget.', 'Fusce tristique felis at fermentum pharetra.', 'Aliquam id orci ut lectus varius viverra.', 'Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.', 'Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.', 'Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui.', 'Sed sed nisi sed augue convallis suscipit in sed felis.', 'Aliquam erat volutpat.', 'Nunc fermentum tortor ac porta dapibus.', 'In rutrum ac purus sit amet tempus.'];
@@ -61,6 +61,7 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 const UserAction = {

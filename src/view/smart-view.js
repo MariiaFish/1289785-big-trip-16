@@ -7,10 +7,18 @@ class SmartView extends AbstractView {
     if (!update) {
       return;
     }
-
     this._data = { ...this._data, ...update };
     this.updateElement();
   };
+
+  updateDataByInput = (update) => {
+    if (!update) {
+      return;
+    }
+
+    this._data = { ...this._data, ...update };
+  };
+
 
   updateElement = () => {
     const prevElement = this.element;

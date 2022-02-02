@@ -73,48 +73,47 @@ const createEventPriceTemplate = (price) => (
 );
 
 
-const createOffersSectionTemplate = (offers) => (
-  `<section class="event__details">
+const createOffersSectionTemplate = (pointOffers) => (`<section class="event__details">
                   <section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                     <div class="event__available-offers">
-                    ${offers.map(([offerTitle, offerPrice]) => `<div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerTitle}" type="checkbox" name="event-offer-${offerTitle}" checked>
-                        <label class="event__offer-label" for="event-offer-${offerTitle}">
-                          <span class="event__offer-title">${offerTitle}</span>
+                    ${pointOffers.map(({title, price, id}) => `<div class="event__offer-selector">
+                        <input class="event__offer-checkbox  visually-hidden ${title}" id="${id}" type="checkbox" name="event-offer-${title}">
+                        <label class="event__offer-label" for="${id}">
+                          <span class="event__offer-title">${title}</span>
                           &plus;&euro;&nbsp;
-                          <span class="event__offer-price">${offerPrice}</span>
+                          <span class="event__offer-price">${price}</span>
                         </label>
                       </div>`).join(' ')}
                     </div>
-                  </section>`
-);
+                  </section>`);
 
 
 const createDestinationTitleTemplate = (title) => (
-  `<p class="event__destination-description">${title.join(' ')}</p>`
+  `<p class="event__destination-description">${title}</p>`
 );
 
-const createPhotosContainerTemplate = (photos) => (
+const createPhotosContainerTemplate = (pictures) => (
   `<div class="event__photos-container">
                       <div class="event__photos-tape">
-                        ${photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(' ')}
+                        ${pictures.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`).join(' ')}
                       </div>
                     </div>`
 );
 
-const createEditPointFormTemplate = (tripPoint) => {
-  const { eventDestination, eventType, endDate, startDate, offers, destination: {title, photos}, price} = tripPoint;
+const createEditPointFormTemplate = (tripPoint, pointOffers, pointDestination) => {
+  const { eventType, endDate, startDate, price} = tripPoint;
+  const {description, pictures, name} = pointDestination;
 
   const isEndDateCorrect = checkEndDate(endDate, startDate);
 
   const typeTemplate = createEventTypesTemplate(eventType);
-  const eventTitleTemplate = createEventTitleEditTemplate(eventType, eventDestination, EVENT_DESTINATION_POINTS);
+  const eventTitleTemplate = createEventTitleEditTemplate(eventType, name, EVENT_DESTINATION_POINTS);
   const eventTimeTemplate = createEventTimeTemplate(startDate, endDate);
   const priceTemplate = createEventPriceTemplate(price);
-  const offersTemplate = offers ? createOffersSectionTemplate(offers) : '';
-  const destinationTitleTemplate = createDestinationTitleTemplate(title);
-  const destinationPhotosTemplate = createPhotosContainerTemplate(photos);
+  const offersTemplate = pointOffers ? createOffersSectionTemplate(pointOffers) : '';
+  const destinationTitleTemplate = createDestinationTitleTemplate(description);
+  const destinationPhotosTemplate = createPhotosContainerTemplate(pictures);
 
 
   return `<li class="trip-events__item">
@@ -152,29 +151,39 @@ class EditPointFormView extends SmartView {
   #datepickerStart = null;
   #datepickerEnd = null;
   #updateType = UpdateType.PATCH;
+  #pointOffers = null;
+  #pointDestination = null;
 
-  constructor(tripPoint = BLANK_TASK) {
+  constructor(tripPoint = BLANK_TASK, offers, destinations) {
     super();
     this._data = EditPointFormView.parsePointToData(tripPoint);
+    const offersType = offers.filter((offer) => offer.type === this._data.eventType);
+    this.#pointOffers = offersType[0].offers;
+    // console.log(this.#pointOffers);
+    const destinationArr = destinations.filter((destination) => destination.name === this._data.destination.name);
+    this.#pointDestination = destinationArr[0];
+    // console.log(this.#pointDestination);
     this.#setInnerHandlers();
     this.#setDatapickers(FLATPICKER_SETTINGS);
+    this.#setOffersHandler();
   }
 
-  get template () {
-    return createEditPointFormTemplate(this._data);
+  get template() {
+    return createEditPointFormTemplate(this._data, this.#pointOffers, this.#pointDestination);
   }
 
   reset = (tripPoint) => {
     this.updateData(EditPointFormView.parsePointToData(tripPoint));
-  }
+  };
 
   restoreHandlers = () => {
     this.#setInnerHandlers();
+    this.#setOffersHandler();
     this.setEditFormSubmitHandler(this._callback.formSubmit);
     this.setDeleteClickHandler(this._callback.deleteClick);
     this.setEditClickHandler(this._callback.editClick);
     this.#setDatapickers(FLATPICKER_SETTINGS);
-  }
+  };
 
   removeElement = () => {
     super.removeElement();
@@ -188,22 +197,28 @@ class EditPointFormView extends SmartView {
       this.#datepickerStart.destroy();
       this.#datepickerStart = null;
     }
-  }
+  };
 
   setEditFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
-    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-  }
+    this.element
+      .querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
+  };
 
   setEditClickHandler = (callback) => {
     this._callback.editClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
-  }
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#editClickHandler);
+  };
 
   setDeleteClickHandler = (callback) => {
     this._callback.deleteClick = callback;
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
-  }
+    this.element
+      .querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deleteClickHandler);
+  };
 
   #setDatepickerStart = (settings) => {
     this.#datepickerStart = flatpickr(
@@ -214,7 +229,7 @@ class EditPointFormView extends SmartView {
         onClose: this.#handleStartDate,
       }
     );
-  }
+  };
 
   #setDatapickerEnd = (settings) => {
     this.#datepickerEnd = flatpickr(
@@ -225,75 +240,97 @@ class EditPointFormView extends SmartView {
         onClose: this.#handleEndDate,
       }
     );
-  }
+  };
 
   #setDatapickers = (settings) => {
     this.#setDatepickerStart(settings);
     this.#setDatapickerEnd(settings);
-  }
+  };
 
   #setInnerHandlers = () => {
-    this.element.querySelector('.event__type-list').addEventListener('change', this.#eventTypeChangeHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationChangeHandler);
-    this.element.querySelector('.event__input--price').addEventListener('change', this.#eventPriceChangeHandler);
+    this.element
+      .querySelector('.event__type-list')
+      .addEventListener('change', this.#eventTypeChangeHandler);
+    this.element
+      .querySelector('.event__input--destination')
+      .addEventListener('change', this.#eventDestinationChangeHandler);
+    this.element
+      .querySelector('.event__input--price')
+      .addEventListener('input', this.#eventPriceChangeHandler);
+  };
+
+  #setOffersHandler = () => {
+    if (this._data.offers) {
+      this.element.querySelectorAll('.event__offer-checkbox').forEach((checkbox) => (checkbox.checked = true));
+    }
   }
 
   #eventTypeChangeHandler = (evt) => {
     evt.preventDefault();
     this.updateData({
       eventType: evt.target.value,
-      eventTitle: evt.target.value,
-      offers: OFFERS[evt.target.value],
+      // eventTitle: evt.target.value,
     });
-  }
+    this.#updateType = UpdateType.MAJOR;
+  };
 
   #eventDestinationChangeHandler = (evt) => {
     evt.preventDefault();
     this.updateData({
-      eventDestination: evt.target.value,
-      destination: {title: updateDescriptionTitle(), photos: updateDescriptionPhotos()}
+      destination: {
+        name: evt.target.value,
+        title: updateDescriptionTitle(),
+        photos: updateDescriptionPhotos(),
+      },
     });
-  }
+    this.#updateType = UpdateType.MAJOR;
+  };
 
   #eventPriceChangeHandler = (evt) => {
     evt.preventDefault();
-    this.updateData({
+    this.updateDataByInput({
       price: Number(evt.target.value),
     });
     this.#updateType = UpdateType.MAJOR;
-  }
+  };
 
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.deleteClick(EditPointFormView.parseDataToPoint(this._data));
-  }
+  };
 
   #editClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.editClick();
-  }
+  };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(EditPointFormView.parseDataToPoint(this._data), this.#updateType);
-  }
+    this._callback.formSubmit(
+      EditPointFormView.parseDataToPoint(this._data),
+      this.#updateType
+    );
+  };
 
   #handleStartDate = (userDate) => {
     this.#dateChangeHandler(userDate, DateType.START_DATA);
     this.#updateType = UpdateType.MAJOR;
-  }
+  };
 
   #handleEndDate = (userDate) => {
     this.#dateChangeHandler(userDate, DateType.END_DATA);
     this.#updateType = UpdateType.MAJOR;
-  }
+  };
 
   #dateChangeHandler = (userDate, dateType) => {
     switch (dateType) {
       case DateType.END_DATA:
         this.updateData({
           endDate: dayjs(userDate),
-          eventDuration: calcTimeDuration(dayjs(userDate), this._data.startDate)
+          eventDuration: calcTimeDuration(
+            dayjs(userDate),
+            this._data.startDate
+          ),
         });
         break;
       case DateType.START_DATA:
@@ -304,15 +341,15 @@ class EditPointFormView extends SmartView {
         });
         break;
     }
-  }
+  };
 
-  static parsePointToData = (point) => ({...point});
+  static parsePointToData = (point) => ({ ...point });
 
   static parseDataToPoint = (data) => {
-    const point = {...data};
+    const point = { ...data };
     // еще какая-то логика
     return point;
-  }
+  };
 }
 
 export { EditPointFormView };

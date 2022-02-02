@@ -41,7 +41,7 @@ const getRandomArrayLength = (array, length) => {
 const timeUp = (a, b) => b.eventDuration - a.eventDuration;
 
 const priceUp = (a, b) => b.price - a.price;
-const dateDown = (a, b) => a.eventDate - b.eventDate;
+const dateDown = (a, b) => a.startDate - b.startDate;
 const upToDown = (a, b) => b[1] - a[1];
 
 const isFuturePoint = (startDate) => dayjs().isSame(startDate) || dayjs().isBefore(startDate);

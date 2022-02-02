@@ -13,6 +13,8 @@ class TripPointPresenter {
   #tripPointComponent = null;
   #tripEditComponent = null;
   #tripPoint = null;
+  #offers = null;
+  #destinations = null;
   #mode = Mode.DEFAULT;
 
   #changeData = null;
@@ -24,14 +26,16 @@ class TripPointPresenter {
     this.#changeMode = changeMode;
   }
 
-  init = (tripPoint) => {
+  init = (tripPoint, offers, destinations) => {
     this.#tripPoint = tripPoint;
+    this.#offers = offers;
+    this.#destinations = destinations;
 
     const prevTripPointComponent = this.#tripPointComponent;
     const prevTripEditComponent = this.#tripEditComponent;
 
-    this.#tripPointComponent = new TripPointView(this.#tripPoint);
-    this.#tripEditComponent = new EditPointFormView(this.#tripPoint);
+    this.#tripPointComponent = new TripPointView(this.#tripPoint, this.#offers);
+    this.#tripEditComponent = new EditPointFormView(this.#tripPoint, this.#offers, this.#destinations);
 
     this.#tripPointComponent.setEditClickHandler(this.#handlerEditClic);
     this.#tripPointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
