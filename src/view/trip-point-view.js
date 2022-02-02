@@ -5,8 +5,6 @@ import { convertDurationTime } from '../mock/convertor-time-duration.js';
 import { SmartView } from './smart-view.js';
 import { calcTimeDuration} from '../mock/utils/event-time.js';
 
-
-
 const createOfferElements = (offers) => (
   `<ul class="event__selected-offers ">
                   ${offers.map((offer) => `<li class="event__offer">

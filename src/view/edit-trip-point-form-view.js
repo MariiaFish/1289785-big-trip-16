@@ -2,7 +2,7 @@ import { getLowerCaseEventType, getRandomArrayLength, getRandomInteger, genArray
 import {convertDateToFormat, getTodayDate} from '../mock/utils/date.js';
 import { updateDescriptionTitle, updateDescriptionPhotos } from '../mock/trip-point-data.js';
 import {createEventTypesListTemplate} from './event-type-list-view.js';
-import {EVENT_TYPES, EVENT_DATE_FORMAT, VALUE_ATR_FULL_DATE_FORMAT, FLATPICKER_SETTINGS, DESTINATION_DISCRIPTION, EVENT_DESTINATION_POINTS, OFFERS, UpdateType, DateType} from '../mock/utils/consts.js';
+import {EVENT_TYPES, EVENT_DATE_FORMAT, VALUE_ATR_FULL_DATE_FORMAT, FLATPICKER_SETTINGS, DESTINATION_DISCRIPTION, EVENT_DESTINATION_POINTS, UpdateType, DateType} from '../mock/utils/consts.js';
 import { SmartView } from './smart-view.js';
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
