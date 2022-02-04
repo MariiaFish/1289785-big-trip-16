@@ -1,29 +1,14 @@
-import { getLowerCaseEventType, getRandomArrayLength, getRandomInteger, genArray, generatePhotoAdress, checkEndDate} from '../mock/utils/utils.js';
-import {convertDateToFormat, getTodayDate} from '../mock/utils/date.js';
+import { getLowerCaseEventType, checkEndDate} from '../mock/utils/utils.js';
+import {convertDateToFormat} from '../mock/utils/date.js';
 import { updateDescriptionTitle, updateDescriptionPhotos } from '../mock/trip-point-data.js';
 import {createEventTypesListTemplate} from './event-type-list-view.js';
-import {EVENT_TYPES, EVENT_DATE_FORMAT, VALUE_ATR_FULL_DATE_FORMAT, FLATPICKER_SETTINGS, DESTINATION_DISCRIPTION, EVENT_DESTINATION_POINTS, OFFERS, UpdateType, DateType} from '../mock/utils/consts.js';
+import {EVENT_TYPES, VALUE_ATR_FULL_DATE_FORMAT, FLATPICKER_SETTINGS, EVENT_DESTINATION_POINTS, OFFERS, UpdateType, DateType} from '../mock/utils/consts.js';
 import { SmartView } from './smart-view.js';
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 import dayjs from 'dayjs';
 import { calcTimeDuration } from '../mock/utils/event-time.js';
 
-
-const BLANK_TASK = {
-  eventDate: getTodayDate(EVENT_DATE_FORMAT),
-  eventType: 'Taxi',
-  offers: '',
-  eventDestination: 'Amsterdam',
-  startDate: dayjs(),
-  endDate: dayjs(),
-  eventDuration: '',
-  price: 0,
-  destination: {
-    title: getRandomArrayLength(DESTINATION_DISCRIPTION, getRandomInteger(1, 5)),
-    photos: genArray(getRandomInteger(1, 5),generatePhotoAdress),
-  }
-};
 const createEventTypesTemplate = (eventType) => {
   const typesList = createEventTypesListTemplate(EVENT_TYPES, eventType);
   return `<div class="event__type-wrapper">
@@ -36,10 +21,12 @@ const createEventTypesTemplate = (eventType) => {
                     </div>`;
 };
 
-const createDestinationListTemplate = (destinationList) =>
+const createDestinationListTemplate = (destinationList) => (
   `<datalist id="destination-list-1">
       ${destinationList.map((destinationItem) => `<option value="${destinationItem}"></option>`).join(' ')}
-  </datalist>`;
+  </datalist>`
+);
+
 
 const createEventTitleEditTemplate = (eventType, eventDestination, destinationList) => {
   const destinationPoints = createDestinationListTemplate(destinationList);
@@ -73,49 +60,48 @@ const createEventPriceTemplate = (price) => (
 );
 
 
-const createOffersSectionTemplate = (offers) => (
-  `<section class="event__details">
+const createOffersSectionTemplate = (pointOffers) => (`<section class="event__details">
                   <section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                     <div class="event__available-offers">
-                    ${offers.map(([offerTitle, offerPrice]) => `<div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerTitle}" type="checkbox" name="event-offer-${offerTitle}" checked>
-                        <label class="event__offer-label" for="event-offer-${offerTitle}">
-                          <span class="event__offer-title">${offerTitle}</span>
+                    ${pointOffers.map(({title, price, id}) => `<div class="event__offer-selector">
+                        <input class="event__offer-checkbox  visually-hidden ${title}" id="${id}" type="checkbox" name="event-offer-${title}">
+                        <label class="event__offer-label" for="${id}">
+                          <span class="event__offer-title">${title}</span>
                           &plus;&euro;&nbsp;
-                          <span class="event__offer-price">${offerPrice}</span>
+                          <span class="event__offer-price">${price}</span>
                         </label>
                       </div>`).join(' ')}
                     </div>
-                  </section>`
-);
+                  </section>`);
 
 
 const createDestinationTitleTemplate = (title) => (
-  `<p class="event__destination-description">${title.join(' ')}</p>`
+  `<p class="event__destination-description">${title}</p>`
 );
 
-const createPhotosContainerTemplate = (photos) => (
+
+const createPhotosContainerTemplate = (pictures) => (
   `<div class="event__photos-container">
                       <div class="event__photos-tape">
-                        ${photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(' ')}
+                        ${pictures.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`).join(' ')}
                       </div>
                     </div>`
 );
 
-const createEditPointFormTemplate = (tripPointCard) => {
-  const { eventDestination, eventType, endDate, startDate, offers, destination: {title, photos}, price} = tripPointCard;
+const createEditPointFormTemplate = (tripPoint, pointOffers, pointDestination) => {
+  const { eventType, endDate, startDate, price } = tripPoint;
+  const { description, pictures, name } = pointDestination;
 
   const isEndDateCorrect = checkEndDate(endDate, startDate);
 
   const typeTemplate = createEventTypesTemplate(eventType);
-  const eventTitleTemplate = createEventTitleEditTemplate(eventType, eventDestination, EVENT_DESTINATION_POINTS);
+  const eventTitleTemplate = createEventTitleEditTemplate(eventType, name, EVENT_DESTINATION_POINTS);
   const eventTimeTemplate = createEventTimeTemplate(startDate, endDate);
   const priceTemplate = createEventPriceTemplate(price);
-  const offersTemplate = offers ? createOffersSectionTemplate(offers) : '';
-  const destinationTitleTemplate = createDestinationTitleTemplate(title);
-  const destinationPhotosTemplate = createPhotosContainerTemplate(photos);
-
+  const offersTemplate = pointOffers ? createOffersSectionTemplate(pointOffers) : '';
+  const destinationTitleTemplate = createDestinationTitleTemplate(description);
+  const destinationPhotosTemplate = createPhotosContainerTemplate(pictures);
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -147,32 +133,40 @@ const createEditPointFormTemplate = (tripPointCard) => {
             </li>`;
 };
 
+
 class NewPointFormView extends SmartView {
   #datepickerStart = null;
   #datepickerEnd = null;
   #updateType = UpdateType.PATCH;
+  #pointOffers = null;
+  #pointDestination = null;
 
-  constructor(tripPointCard = BLANK_TASK) {
+  constructor(tripPoint, offers, destinations) {
     super();
-    this._data = NewPointFormView.parsePointToData(tripPointCard);
+    this._data = NewPointFormView.parsePointToData(tripPoint);
+    console.log(this._data);
+    const offersType = offers.filter((offer) => offer.type === this._data.eventType);
+    this.#pointOffers = offersType[0].offers;
+    const destinationArr = destinations.filter((destination) => destination.name === this._data.destination.name);
+    this.#pointDestination = destinationArr[0];
     this.#setInnerHandlers();
     this.#setDatapickers();
   }
 
-  get template () {
-    return createEditPointFormTemplate(this._data);
+  get template() {
+    return createEditPointFormTemplate(this._data, this.#pointOffers, this.#pointDestination);
   }
 
-  reset = (tripPointCard) => {
-    this.updateData(NewPointFormView.parsePointToData(tripPointCard));
-  }
+  reset = (tripPoint) => {
+    this.updateData(NewPointFormView.parsePointToData(tripPoint));
+  };
 
   restoreHandlers = () => {
     this.#setInnerHandlers();
     this.setEditFormSubmitHandler(this._callback.formSubmit);
     this.setCancelClickHandler(this._callback.cancelClick);
     this.#setDatapickers();
-  }
+  };
 
   removeElement = () => {
     super.removeElement();
@@ -186,12 +180,12 @@ class NewPointFormView extends SmartView {
       this.#datepickerStart.destroy();
       this.#datepickerStart = null;
     }
-  }
+  };
 
   setEditFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-  }
+  };
 
   // setEditClickHandler = (callback) => {
   //   this._callback.editClick = callback;
@@ -200,8 +194,10 @@ class NewPointFormView extends SmartView {
 
   setCancelClickHandler = (callback) => {
     this._callback.cancelClick = callback;
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelClickHandler);
-  }
+    this.element
+      .querySelector('.event__reset-btn')
+      .addEventListener('click', this.#cancelClickHandler);
+  };
 
   setDatepickerStart = () => {
     this.#datepickerStart = flatpickr(
@@ -212,7 +208,7 @@ class NewPointFormView extends SmartView {
         onClose: this.#handleStartDate,
       }
     );
-  }
+  };
 
   setDatapickerEnd = () => {
     this.#datepickerEnd = flatpickr(
@@ -223,18 +219,18 @@ class NewPointFormView extends SmartView {
         onClose: this.#handleEndDate,
       }
     );
-  }
+  };
 
   #setDatapickers = () => {
     this.setDatepickerStart();
     this.setDatapickerEnd();
-  }
+  };
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationChangeHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#eventPriceChangeHandler);
-  }
+  };
 
   #eventTypeChangeHandler = (evt) => {
     evt.preventDefault();
@@ -243,49 +239,56 @@ class NewPointFormView extends SmartView {
       eventTitle: evt.target.value,
       offers: OFFERS[evt.target.value],
     });
-  }
+  };
 
   #eventDestinationChangeHandler = (evt) => {
     evt.preventDefault();
     this.updateData({
       eventDestination: evt.target.value,
-      destination: {title: updateDescriptionTitle(), photos: updateDescriptionPhotos()}
+      destination: {
+        title: updateDescriptionTitle(),
+        photos: updateDescriptionPhotos(),
+      },
     });
-  }
+  };
 
   #eventPriceChangeHandler = (evt) => {
     this.updateData({
       price: Number(evt.target.value),
     });
     this.#updateType = UpdateType.MAJOR;
-  }
+  };
 
   #cancelClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.cancelClick(NewPointFormView.parseDataToPoint(this._data));
-  }
+  };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+    console.log(this._data);
     this._callback.formSubmit(NewPointFormView.parseDataToPoint(this._data), this.#updateType);
-  }
+  };
 
   #handleStartDate = (userDate) => {
     this.#dateChangeHandler(userDate, DateType.START_DATA);
     this.#updateType = UpdateType.MAJOR;
-  }
+  };
 
   #handleEndDate = (userDate) => {
     this.#dateChangeHandler(userDate, DateType.END_DATA);
     this.#updateType = UpdateType.MAJOR;
-  }
+  };
 
   #dateChangeHandler = (userDate, dateType) => {
     switch (dateType) {
       case DateType.END_DATA:
         this.updateData({
           endDate: dayjs(userDate),
-          eventDuration: calcTimeDuration(dayjs(userDate), this._data.startDate)
+          eventDuration: calcTimeDuration(
+            dayjs(userDate),
+            this._data.startDate
+          ),
         });
         break;
       case DateType.START_DATA:
@@ -296,15 +299,17 @@ class NewPointFormView extends SmartView {
         });
         break;
     }
-  }
+  };
 
-  static parsePointToData = (point) => ({...point});
+  static parsePointToData = (point) => ({ ...point });
 
   static parseDataToPoint = (data) => {
-    const point = {...data};
+    console.log(data);
+    const point = { ...data };
     // еще какая-то логика
+    console.log(point);
     return point;
-  }
+  };
 }
 
 export { NewPointFormView };

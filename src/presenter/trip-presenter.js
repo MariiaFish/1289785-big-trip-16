@@ -25,8 +25,8 @@ class TripPresenter {
   #eventsSectionComponent = new TripEventsSection();
   #tripListComponent = new TripListView();
   #tripPointPresenterMap = new Map();
-  #offersMap = new Map();
-  #destinationsMap = new Map();
+  // #offersMap = new Map();
+  // #destinationsMap = new Map();
   #currentSortValue = SortValue.DEFAULT;
   #loadingComponent = new LoadingView();
   #isLoading = true;
@@ -84,7 +84,7 @@ class TripPresenter {
 
   createTripPoint = (callback) => {
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#newTripPointPresenter.init(callback);
+    this.#newTripPointPresenter.init(callback, this.#tripPointsModel);
   };
 
   #clearEvent = ({ resetSortValue = false } = {}) => {
@@ -127,7 +127,7 @@ class TripPresenter {
         this.#tripPointsModel.updatePoint(updateType, update);
         break;
       case UserAction.ADD_TRIP_POINT:
-        this.#tripPointsModel.addTripPoint(updateType, update);
+        this.#tripPointsModel.addPoint(updateType, update);
         break;
       case UserAction.DELETE_TRIP_POINT:
         this.#tripPointsModel.deleteTripPoint(updateType, update);
@@ -169,14 +169,14 @@ class TripPresenter {
     );
   };
 
-  #renderTripPoint = (tripPoint, offers, destinations) => {
+  #renderTripPoint = (tripPoint) => {
     const tripPointPresenter = new TripPointPresenter(this.#tripListComponent, this.#handleViewAction, this.#handelModeChange);
-    tripPointPresenter.init(tripPoint, offers, destinations);
+    tripPointPresenter.init(tripPoint, this.#tripPointsModel);
     this.#tripPointPresenterMap.set(tripPoint.id, tripPointPresenter);
   };
 
-  #renderTripPoints = (tripPoints, offers, destinations) => {
-    tripPoints.forEach((tripPoint) => this.#renderTripPoint(tripPoint, offers, destinations));
+  #renderTripPoints = (tripPoints) => {
+    tripPoints.forEach((tripPoint) => this.#renderTripPoint(tripPoint));
   };
 
   #renderSort = () => {

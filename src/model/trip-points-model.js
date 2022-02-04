@@ -59,10 +59,11 @@ class TripPointsModel extends AbstractObservable {
   }
 
   updatePoint = async (updateType, update) => {
-    const index = this.#points.findIndex((points) => points.id === update.id);
+    // console.log(update);
+    const index = this.#points.findIndex((point) => point.id === update.id);
 
     if (index === -1) {
-      throw new Error('Can\'t update unexisting task');
+      throw new Error('Can\'t update unexisting point');
     }
 
     try {
@@ -80,25 +81,37 @@ class TripPointsModel extends AbstractObservable {
     }
   };
 
-  addTripPoint = (updateType, update) => {
-    this.#points = [update, ...this.#points];
-
-    this._notify(updateType, update);
+  addPoint = async (updateType, update) => {
+    try {
+      const response = await this.#apiService.addPoint(update);
+      const newPoint = this.#adaptToClient(response);
+      this.#points = [newPoint, ...this.#points];
+      this._notify(updateType, newPoint);
+    } catch (err) {
+      throw new Error(err);
+    }
   };
 
-  deleteTripPoint = (updateType, update) => {
+  deleteTripPoint = async (updateType, update) => {
     const index = this.#points.findIndex((points) => points.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t delete unexisting task');
     }
 
-    this.#points = [
-      ...this.#points.slice(0, index),
-      ...this.#points.slice(index + 1),
-    ];
-
-    this._notify(updateType);
+    try {
+      // Обратите внимание, метод удаления задачи на сервере
+      // ничего не возвращает. Это и верно,
+      // ведь что можно вернуть при удалении задачи?
+      await this.#apiService.deletePoint(update);
+      this.#points = [
+        ...this.#points.slice(0, index),
+        ...this.#points.slice(index + 1),
+      ];
+      this._notify(updateType);
+    } catch (err) {
+      throw new Error('Can\'t delete point');
+    }
   };
 
   #adaptToClient = (point) => {

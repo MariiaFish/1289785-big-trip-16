@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 const FALSE = 0;
 const TRUE = 1;
 
@@ -93,6 +95,28 @@ const MenuItem = {
   STATISTICS: 'STATISTICS',
 };
 
+const BLANK_TASK = {
+  // id: 89,
+  eventType: 'taxi',
+  offers: '',
+  startDate: dayjs(),
+  endDate: dayjs(),
+  eventDuration: '',
+  price: 0,
+  isFavorite: false,
+  destination: {
+    description: 'Chamonix, is a beautiful city, a true asian pearl, with crowded streets.',
+    pictures: [
+      {
+        src: 'http://picsum.photos/300/200?r=0.0762563005163317',
+        description: 'Chamonix parliament building'
+      }
+    ],
+    name: 'Chamonix',
+  }
+};
+
+
 export {
   FALSE,
   TRUE,
@@ -112,7 +136,7 @@ export {
   MenuItem,
   EVENT_DESTINATION_POINTS,
   EVENT_TYPES,
-  // OFFER_TITLES,
+  BLANK_TASK,
   HOUR_VALUE,
   DAY_VALUE,
   EVENT_DATE_FORMAT,

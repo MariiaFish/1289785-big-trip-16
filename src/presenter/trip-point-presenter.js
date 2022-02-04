@@ -20,16 +20,16 @@ class TripPointPresenter {
   #changeData = null;
   #changeMode = null;
 
-  constructor(tripListContainer, changeDate, changeMode) {
+  constructor(tripListContainer, changeData, changeMode) {
     this.#tripListComponent = tripListContainer;
-    this.#changeData = changeDate;
+    this.#changeData = changeData;
     this.#changeMode = changeMode;
   }
 
-  init = (tripPoint, offers, destinations) => {
-    this.#tripPoint = tripPoint;
-    this.#offers = offers;
-    this.#destinations = destinations;
+  init = (tripPoints, tripPointsModel) => {
+    this.#tripPoint = tripPoints;
+    this.#offers = tripPointsModel.offers;
+    this.#destinations = tripPointsModel.destinations;
 
     const prevTripPointComponent = this.#tripPointComponent;
     const prevTripEditComponent = this.#tripEditComponent;
@@ -112,6 +112,8 @@ class TripPointPresenter {
   };
 
   #handleFavoriteClick = () => {
+    // console.log(this.#tripPoint);
+    // console.log({...this.#tripPoint, isFavorite: !this.#tripPoint.isFavorite});
     this.#changeData(UserAction.UPDATE_TRIP_POINT, UpdateType.PATCH, {...this.#tripPoint, isFavorite: !this.#tripPoint.isFavorite});
   };
 }

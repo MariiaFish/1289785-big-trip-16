@@ -1,6 +1,8 @@
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
 };
 
 class ApiService {
@@ -28,18 +30,40 @@ class ApiService {
   }
 
 
-  updatePoint = async (points) => {
+  updatePoint = async (point) => {
     const response = await this.#load({
-      url: `tripPoints/${points.id}`,
+      url: `points/${point.id}`,
       method: Method.PUT,
-      body: JSON.stringify(this.#adaptToServer(points)),
+      body: JSON.stringify(this.#adaptToServer(point)),
       headers: new Headers({ 'Content-Type': 'application/json' }),
+    });
+
+    const parsedResponse = await ApiService.parseResponse(response);
+    return parsedResponse;
+  }
+
+  addPoint = async (point) => {
+    const response = await this.#load({
+      url: 'points',
+      method: Method.POST,
+      body: JSON.stringify(this.#adaptToServer(point)),
+      headers: new Headers({'Content-Type': 'application/json'}),
     });
 
     const parsedResponse = await ApiService.parseResponse(response);
 
     return parsedResponse;
   }
+
+  deletePoint = async (point) => {
+    const response = await this.#load({
+      url: `points/${point.id}`,
+      method: Method.DELETE,
+    });
+
+    return response;
+  }
+
 
   #load = async ({
     url,
@@ -52,7 +76,7 @@ class ApiService {
     const response = await fetch(
       `${this.#endPoint}/${url}`,
       {method, body, headers},
-    );
+);
 
     try {
       ApiService.checkStatus(response);
@@ -62,19 +86,24 @@ class ApiService {
     }
   }
 
-   #adaptToServer = (tripPoint) => {
-     const adaptedTripPoint = {...tripPoint,
-       'base_price': tripPoint.price,
-       'date_from': tripPoint.startDate.toISOString(),
-       'date_to': tripPoint.endDate.toISOString(),
-       'destination': tripPoint.destination,
-       'is_favorite': tripPoint.isFavorite,
-       'type': tripPoint.eventType,
+   #adaptToServer = (point) => {
+     const adaptedTripPoint = {...point,
+       'base_price': point.price,
+       'date_from': point.startDate.toISOString(),
+       'date_to': point.endDate.toISOString(),
+       'destination': point.destination,
+       'is_favorite': point.isFavorite,
+       'type': point.eventType,
      };
 
      // Ненужные ключи мы удаляем
-     delete tripPoint.eventDuration;
-     delete tripPoint.eventDate;
+     delete adaptedTripPoint.eventDuration;
+     delete adaptedTripPoint.eventDate;
+     delete adaptedTripPoint.isFavorite;
+     delete adaptedTripPoint.startDate;
+     delete adaptedTripPoint.endDate;
+     delete adaptedTripPoint.eventType;
+     console.log(adaptedTripPoint);
 
      return adaptedTripPoint;
    }

@@ -36,10 +36,11 @@ const createEventTypesTemplate = (eventType) => {
                     </div>`;
 };
 
-const createDestinationListTemplate = (destinationList) =>
+const createDestinationListTemplate = (destinationList) => (
   `<datalist id="destination-list-1">
       ${destinationList.map((destinationItem) => `<option value="${destinationItem}"></option>`).join(' ')}
-  </datalist>`;
+  </datalist>`
+);
 
 const createEventTitleEditTemplate = (eventType, eventDestination, destinationList) => {
   const destinationPoints = createDestinationListTemplate(destinationList);
