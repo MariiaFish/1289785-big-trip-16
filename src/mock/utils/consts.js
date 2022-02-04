@@ -96,7 +96,6 @@ const MenuItem = {
 };
 
 const BLANK_TASK = {
-  // id: 89,
   eventType: 'taxi',
   offers: '',
   startDate: dayjs(),

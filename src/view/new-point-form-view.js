@@ -144,7 +144,6 @@ class NewPointFormView extends SmartView {
   constructor(tripPoint, offers, destinations) {
     super();
     this._data = NewPointFormView.parsePointToData(tripPoint);
-    console.log(this._data);
     const offersType = offers.filter((offer) => offer.type === this._data.eventType);
     this.#pointOffers = offersType[0].offers;
     const destinationArr = destinations.filter((destination) => destination.name === this._data.destination.name);
@@ -266,7 +265,6 @@ class NewPointFormView extends SmartView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    console.log(this._data);
     this._callback.formSubmit(NewPointFormView.parseDataToPoint(this._data), this.#updateType);
   };
 
@@ -304,10 +302,8 @@ class NewPointFormView extends SmartView {
   static parsePointToData = (point) => ({ ...point });
 
   static parseDataToPoint = (data) => {
-    console.log(data);
     const point = { ...data };
     // еще какая-то логика
-    console.log(point);
     return point;
   };
 }

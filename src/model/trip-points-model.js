@@ -88,7 +88,7 @@ class TripPointsModel extends AbstractObservable {
       this.#points = [newPoint, ...this.#points];
       this._notify(updateType, newPoint);
     } catch (err) {
-      throw new Error(err);
+      throw new Error('Can\'t add point');
     }
   };
 

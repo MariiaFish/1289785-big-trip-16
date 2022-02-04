@@ -1,6 +1,6 @@
 import { NewPointFormView } from '../view/new-point-form-view.js';
 import { RenderPosition, render, remove } from '../mock/utils/render.js';
-import {UpdateType, UserAction, BLANK_TASK} from '../mock/utils/consts.js';
+import { UserAction, BLANK_TASK} from '../mock/utils/consts.js';
 // import { nanoid } from 'nanoid';
 
 

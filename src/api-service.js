@@ -76,7 +76,7 @@ class ApiService {
     const response = await fetch(
       `${this.#endPoint}/${url}`,
       {method, body, headers},
-);
+    );
 
     try {
       ApiService.checkStatus(response);
@@ -103,7 +103,6 @@ class ApiService {
      delete adaptedTripPoint.startDate;
      delete adaptedTripPoint.endDate;
      delete adaptedTripPoint.eventType;
-     console.log(adaptedTripPoint);
 
      return adaptedTripPoint;
    }
