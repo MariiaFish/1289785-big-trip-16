@@ -4,7 +4,6 @@ import { RenderPosition, render } from '../mock/utils/render.js';
 import {UpdateType} from '../mock/utils/consts.js';
 import { remove, replace } from '../mock/utils/render';
 
-
 class FilterPresenter {
   #filterContainer = null;
   #filterModel = null;

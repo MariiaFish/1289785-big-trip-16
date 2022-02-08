@@ -26,15 +26,15 @@ class TripPointPresenter {
     this.#changeMode = changeMode;
   }
 
-  init = (tripPoints, tripPointsModel) => {
-    this.#tripPoint = tripPoints;
+  init = (tripPoint, tripPointsModel) => {
+    this.#tripPoint = tripPoint;
     this.#offers = tripPointsModel.offers;
     this.#destinations = tripPointsModel.destinations;
 
     const prevTripPointComponent = this.#tripPointComponent;
     const prevTripEditComponent = this.#tripEditComponent;
 
-    this.#tripPointComponent = new TripPointView(this.#tripPoint, this.#offers);
+    this.#tripPointComponent = new TripPointView(this.#tripPoint);
     this.#tripEditComponent = new EditPointFormView(this.#tripPoint, this.#offers, this.#destinations);
 
     this.#tripPointComponent.setEditClickHandler(this.#handlerEditClic);
@@ -112,8 +112,6 @@ class TripPointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    // console.log(this.#tripPoint);
-    // console.log({...this.#tripPoint, isFavorite: !this.#tripPoint.isFavorite});
     this.#changeData(UserAction.UPDATE_TRIP_POINT, UpdateType.PATCH, {...this.#tripPoint, isFavorite: !this.#tripPoint.isFavorite});
   };
 }

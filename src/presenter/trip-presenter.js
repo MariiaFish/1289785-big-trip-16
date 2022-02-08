@@ -6,7 +6,7 @@ import { RenderPosition, render, remove } from '../mock/utils/render.js';
 import {timeUp, priceUp, dateDown} from '../mock/utils/utils.js';
 import { TripInfoView } from '../view/trip-info.js';
 import { TripPointPresenter } from './trip-point-presenter.js';
-import {SortValue, UserAction, UpdateType, FilterType} from '../mock/utils/consts.js';
+import {SortValue, UserAction, UpdateType, FilterType, BLANK_TASK} from '../mock/utils/consts.js';
 import {filter} from '../mock/utils/filter.js';
 import { LoadingView } from '../view/loading-view.js';
 import {NewTripPointPresenter} from './new-trip-point-presenter.js';
@@ -24,9 +24,7 @@ class TripPresenter {
 
   #eventsSectionComponent = new TripEventsSection();
   #tripListComponent = new TripListView();
-  #tripPointPresenterMap = new Map();
-  // #offersMap = new Map();
-  // #destinationsMap = new Map();
+  #tripPointPresenter = new Map();
   #currentSortValue = SortValue.DEFAULT;
   #loadingComponent = new LoadingView();
   #isLoading = true;
@@ -36,7 +34,7 @@ class TripPresenter {
     this.#tripEventContainer = tripEventContainer;
     this.#tripPointsModel = tripPointsModel;
     this.#filterModel = filterModel;
-    this.#newTripPointPresenter = new NewTripPointPresenter(this.#tripListComponent, this.#handleViewAction);
+    this.#newTripPointPresenter = new NewTripPointPresenter(BLANK_TASK, this.#tripListComponent, this.#handleViewAction);
   }
 
   get tripPoints() {
@@ -88,8 +86,8 @@ class TripPresenter {
   };
 
   #clearEvent = ({ resetSortValue = false } = {}) => {
-    this.#tripPointPresenterMap.forEach((presenter) => presenter.destroy());
-    this.#tripPointPresenterMap.clear();
+    this.#tripPointPresenter.forEach((presenter) => presenter.destroy());
+    this.#tripPointPresenter.clear();
 
     remove(this.#sortTripComponent);
     remove(this.#emptyListComponent);
@@ -138,7 +136,7 @@ class TripPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#tripPointPresenterMap.get(data.id).init(data);
+        this.#tripPointPresenter.get(data.id).init(data, this.#tripPointsModel);
         break;
       case UpdateType.MINOR:
         this.#clearEvent();
@@ -172,7 +170,7 @@ class TripPresenter {
   #renderTripPoint = (tripPoint) => {
     const tripPointPresenter = new TripPointPresenter(this.#tripListComponent, this.#handleViewAction, this.#handelModeChange);
     tripPointPresenter.init(tripPoint, this.#tripPointsModel);
-    this.#tripPointPresenterMap.set(tripPoint.id, tripPointPresenter);
+    this.#tripPointPresenter.set(tripPoint.id, tripPointPresenter);
   };
 
   #renderTripPoints = (tripPoints) => {
@@ -187,14 +185,13 @@ class TripPresenter {
 
   #handelModeChange = () => {
     this.#newTripPointPresenter.destroy();
-    this.#tripPointPresenterMap.forEach((presenter) => presenter.resetView());
+    this.#tripPointPresenter.forEach((presenter) => presenter.resetView());
   };
 
   #handleSortValueChange = (sortValue) => {
     if (this.#currentSortValue === sortValue) {
       return;
     }
-
 
     this.#currentSortValue = sortValue;
     this.#clearEvent();

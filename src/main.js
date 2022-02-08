@@ -18,16 +18,11 @@ const pageBodyMainContainer = bodyElement.querySelector('.page-main');
 const tripEventContainer = pageBodyMainContainer.querySelector('.page-body__container');
 
 
-// const TRIP_POINT_COUNT = 7;
 const AUTHORIZATION = 'Basic ribaRibnaai4746';
 const END_POINT = 'https://16.ecmascript.pages.academy/big-trip';
 
-// const tripPoints = genArray(TRIP_POINT_COUNT, generateTripPoint);
-
-// console.log(tripPoints);
 
 const tripPointsModel = new TripPointsModel(new ApiService(END_POINT, AUTHORIZATION));
-// tripPointsModel.tripPoints = tripPoints;
 const filterModel = new FilterModel();
 const newEventButton = new ButtonAddEventView();
 
@@ -38,7 +33,6 @@ const filterPresenter = new FilterPresenter(siteMenuContainer, filterModel);
 
 const handleNewEventFormClose = () => {
   newEventButton.element.disabled = false;
-  // menuNavigation.setMenuItem(MenuItem.TABLE);
 };
 
 let statisticsComponent = null;
@@ -90,7 +84,6 @@ filterPresenter.init();
 tripPointsModel.init().finally(() => {
   render(siteMenuContainer, menuNavigation, RenderPosition.AFTERBEGIN);
   render(tripMainContainer, newEventButton, RenderPosition.BEFOREEND);
-
   menuNavigation.setMenuNavigationClickHandler(handleMenuNavigationClick);
   newEventButton.setNewEventClickHandler(handleMenuNavigationClick);
 });

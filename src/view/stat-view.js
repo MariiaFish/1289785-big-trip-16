@@ -8,15 +8,10 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 const BAR_HEIGHT = 55;
 
 const renderMoneyChat = (moneyCtx, points) => {
-  // получаем массив типов маршрута
   const pointsTypes = points.map((point) => point.eventType);
-  // получаем массив уникальных типов маршрута
   const uniqTypes = makeItemsUniq(pointsTypes);
-  // получаем массив массивов из двух значений [тип, цена], сортируем его по убыванию
   const priceByTypes = uniqTypes.map((uniqType) => countPriceSumByType(points, uniqType)).sort(upToDown);
-  // получаем массив для labels
   const types = priceByTypes.map(([type]) => type.toUpperCase());
-  // получаем массив для data
   const pricesData = priceByTypes.map(([, price]) => price);
 
   return new Chart(moneyCtx, {
@@ -93,15 +88,10 @@ const renderMoneyChat = (moneyCtx, points) => {
 };
 
 const renderTypeChat = (typeCtx, points) => {
-  // получаем массив типов маршрута
   const pointsTypes = points.map((point) => point.eventType);
-  // получаем массив уникальных типов маршрута
   const uniqTypes = makeItemsUniq(pointsTypes);
-  // получаем массив массивов из двух значений [тип, колличество раз], сортируем его по убыванию
   const countByTypes = uniqTypes.map((uniqType) => countPointsByType(points, uniqType)).sort(upToDown);
-  // получаем массив для labels
   const types = countByTypes.map(([type]) => type.toUpperCase());
-  // получаем массив для data
   const countedTypes = countByTypes.map(([, countedType]) => countedType);
 
   return new Chart(typeCtx, {
@@ -178,15 +168,10 @@ const renderTypeChat = (typeCtx, points) => {
 };
 
 const renderTimeChart = (timeCtx, points) => {
-  // получаем массив типов маршрута
   const pointsTypes = points.map((point) => point.eventType);
-  // получаем массив уникальных типов маршрута
   const uniqTypes = makeItemsUniq(pointsTypes);
-  // получаем массив массивов из двух значений [тип, продолжительность], сортируем его по убыванию
   const durationByTypes = uniqTypes.map((uniqType) => countDurationSumByType(points, uniqType)).sort(upToDown);
-  // получаем массив для labels
   const types = durationByTypes.map(([type]) => type.toUpperCase());
-  // получаем массив для data
   const durationData = durationByTypes.map(([ , duration]) => duration);
 
   return new Chart(timeCtx, {
@@ -335,6 +320,5 @@ class StatisticsView extends SmartView {
     this.#typeChat = renderTypeChat(typeCtx, tripPoints);
   };
 }
-
 
 export { StatisticsView };

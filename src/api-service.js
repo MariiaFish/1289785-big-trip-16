@@ -51,7 +51,6 @@ class ApiService {
     });
 
     const parsedResponse = await ApiService.parseResponse(response);
-
     return parsedResponse;
   }
 
@@ -94,15 +93,17 @@ class ApiService {
        'destination': point.destination,
        'is_favorite': point.isFavorite,
        'type': point.eventType,
+       'offers': point.offers,
      };
 
-     // Ненужные ключи мы удаляем
      delete adaptedTripPoint.eventDuration;
      delete adaptedTripPoint.eventDate;
      delete adaptedTripPoint.isFavorite;
      delete adaptedTripPoint.startDate;
      delete adaptedTripPoint.endDate;
      delete adaptedTripPoint.eventType;
+     delete adaptedTripPoint.destinationPoint;
+     delete adaptedTripPoint.price;
 
      return adaptedTripPoint;
    }

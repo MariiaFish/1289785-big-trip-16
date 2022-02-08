@@ -1,9 +1,8 @@
-import { getLowerCaseEventType } from '../mock/utils/utils.js';
 import {convertDateToFormat} from '../mock/utils/date.js';
 import {FULL_DATE_FORMAT, EVENT_DATE_FORMAT, TIME_FORMAT, DATE_TIME} from '../mock/utils/consts.js';
 import { convertDurationTime } from '../mock/convertor-time-duration.js';
 import { SmartView } from './smart-view.js';
-import { calcTimeDuration} from '../mock/utils/event-time.js';
+import { calcTimeDuration} from '../mock/utils/utils.js';
 
 const createOfferElements = (offers) => (
   `<ul class="event__selected-offers ">
@@ -16,7 +15,7 @@ const createOfferElements = (offers) => (
 );
 
 const createNewPointTemplate = (tripPoint) => {
-  const { eventType, offers, endDate, startDate, price, isFavorite, destination: {name}} = tripPoint;
+  const { eventType, offers, endDate, startDate, price, isFavorite, destinationPoint} = tripPoint;
 
   const favoriteClass = isFavorite === true ? 'event__favorite-btn--active' : '';
   const eventDuration = calcTimeDuration(endDate, startDate);
@@ -27,9 +26,9 @@ const createNewPointTemplate = (tripPoint) => {
               <div class="event">
                 <time class="event__date" datetime="${convertDateToFormat(startDate, FULL_DATE_FORMAT)}">${convertDateToFormat(startDate, EVENT_DATE_FORMAT)}</time>
                 <div class="event__type">
-                  <img class="event__type-icon" width="42" height="42" src="img/icons/${getLowerCaseEventType(eventType)}.png" alt="Event type icon">
+                  <img class="event__type-icon" width="42" height="42" src="img/icons/${eventType}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${eventType} ${name}</h3>
+                <h3 class="event__title">${eventType} ${destinationPoint}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${convertDateToFormat(startDate, DATE_TIME)}">${convertDateToFormat(startDate, TIME_FORMAT)}</time>
@@ -67,9 +66,6 @@ class TripPointView extends SmartView {
     return createNewPointTemplate(this._data);
   }
 
-  restoreHandlers = () => {
-  }
-
   setEditClickHandler = (callback) => {
     this._callback.editClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
@@ -94,7 +90,6 @@ class TripPointView extends SmartView {
 
   static parseDataToPoint = (data) => {
     const point = {...data};
-    // еще какая-то логика
     return point;
   }
 }

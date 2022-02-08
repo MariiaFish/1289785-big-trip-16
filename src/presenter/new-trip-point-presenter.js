@@ -1,7 +1,6 @@
 import { NewPointFormView } from '../view/new-point-form-view.js';
 import { RenderPosition, render, remove } from '../mock/utils/render.js';
-import { UserAction, BLANK_TASK} from '../mock/utils/consts.js';
-// import { nanoid } from 'nanoid';
+import { UserAction} from '../mock/utils/consts.js';
 
 
 class NewTripPointPresenter {
@@ -11,10 +10,12 @@ class NewTripPointPresenter {
   #destroyCallback = null;
   #offers = null;
   #destinations = null;
+  #tripPoint = null;
 
-  constructor(tripListContainer, changeDate) {
+  constructor(tripPoint, tripListContainer, changeDate) {
     this.#tripListContainer = tripListContainer;
     this.#changeData = changeDate;
+    this.#tripPoint = tripPoint;
   }
 
   init = (callback, tripPointsModel) => {
@@ -26,19 +27,13 @@ class NewTripPointPresenter {
       return;
     }
 
-    this.#tripEditComponent = new NewPointFormView(BLANK_TASK, this.#offers, this.#destinations);
+    this.#tripEditComponent = new NewPointFormView(this.#tripPoint, this.#offers, this.#destinations);
 
     this.#tripEditComponent.setEditFormSubmitHandler(this.#handleFormSubmit);
     this.#tripEditComponent.setCancelClickHandler(this.#handleCancelClick);
 
-    render(
-      this.#tripListContainer,
-      this.#tripEditComponent,
-      RenderPosition.AFTERBEGIN
-    );
+    render(this.#tripListContainer, this.#tripEditComponent, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#escKeyDownHandler);
-
-    // console.log(this.#tripEditComponent);
   };
 
   destroy = () => {

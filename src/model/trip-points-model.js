@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { AbstractObservable } from '../mock/utils/abstract-observable';
 import { dateDown } from '../mock/utils/utils.js';
 import {UpdateType} from '../mock/utils/consts.js';
-import { calcTimeDuration} from '../mock/utils/event-time.js';
+import { calcTimeDuration} from '../mock/utils/utils.js';
 
 
 class TripPointsModel extends AbstractObservable {
@@ -24,9 +24,6 @@ class TripPointsModel extends AbstractObservable {
       this.#destinations = destinations;
       this.#offers = offers;
       this.#points = points.map(this.#adaptToClient);
-      // console.log(this.#points);
-      // console.log(this.#destinations);
-      // console.log(this.#offers);
     } catch (err) {
       this.#points = [];
     }
@@ -59,7 +56,6 @@ class TripPointsModel extends AbstractObservable {
   }
 
   updatePoint = async (updateType, update) => {
-    // console.log(update);
     const index = this.#points.findIndex((point) => point.id === update.id);
 
     if (index === -1) {
@@ -75,9 +71,10 @@ class TripPointsModel extends AbstractObservable {
         ...this.#points.slice(index + 1),
       ].sort(dateDown);
 
+
       this._notify(updateType, update);
     } catch (err) {
-      throw new Error('Can\'t update point');
+      throw new Error('Can\'t update task');
     }
   };
 
@@ -100,9 +97,6 @@ class TripPointsModel extends AbstractObservable {
     }
 
     try {
-      // Обратите внимание, метод удаления задачи на сервере
-      // ничего не возвращает. Это и верно,
-      // ведь что можно вернуть при удалении задачи?
       await this.#apiService.deletePoint(update);
       this.#points = [
         ...this.#points.slice(0, index),
@@ -118,6 +112,7 @@ class TripPointsModel extends AbstractObservable {
     const adaptedPoint = {
       ...point,
       destination: point['destination'],
+      destinationPoint: point['destination'].name,
       endDate: dayjs(point['date_to']),
       startDate: dayjs(point['date_from']),
       eventDuration: calcTimeDuration(dayjs(point['date_to']),dayjs(point['date_from'])),
@@ -127,11 +122,12 @@ class TripPointsModel extends AbstractObservable {
       price: point['base_price'],
     };
 
-    // Ненужные ключи мы удаляем
     delete adaptedPoint['is_favorite'];
     delete adaptedPoint['base_price'];
     delete adaptedPoint['date_from'];
     delete adaptedPoint['date_to'];
+    delete adaptedPoint['type'];
+
 
     return adaptedPoint;
   };
